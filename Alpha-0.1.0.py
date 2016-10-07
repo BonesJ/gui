@@ -60,7 +60,7 @@ class MyWindow(QtGui.QMainWindow):
 
         def del_selected_jobs():
             """WF for jobs data using function `del_selected()`."""
-            del_selected(self.jobsTable, model2,table="job")
+            del_selected(self.jobsTable, model2, table="job")
 
         def del_selected_clients():
             """WF for clients data using function `del_selected()`."""
@@ -233,7 +233,7 @@ class MyWindow(QtGui.QMainWindow):
         def edit_job():
             # cols_i = [0, 1, 2, 3, 4, 5, 6]
             cols_i = [0, 1, 2, 3, 4, 5, 6, 7]
-            info2grab = ["Code_Job","Produit", "Brief", "Date_Debut",
+            info2grab = ["Code_Job", "Produit", "Brief", "Date_Debut",
                          "Date_Fin", "Prix", "Somme_Payee"]
             input_window(tab='job', fields=info2grab,
                          mode='edit', model=model2,
@@ -334,6 +334,7 @@ class MyModel(QtSql.QSqlTableModel):
         super(MyModel, self).__init__(parent)
         self.setEditStrategy(QtSql.QSqlTableModel.OnFieldChange)
         self.setTable(tab)
+
         self.select()
 
 
@@ -341,7 +342,7 @@ def set_style(widget):
     """Func used to apply css styling to window. Uses global variables."""
     global STYLES
     global STYLE
-    for i in range( (len(STYLES) - 1)):
+    for i in range((len(STYLES) - 1)):
         a = STYLE.next()
 
     css = QtCore.QFile(os.path.join('themes', STYLE.next()))
@@ -458,8 +459,8 @@ def make_db():
         ("J-002-003", "client 2", "descri", "15-06-2015", "17-10-2017", 15, 5),
         ("J-002-004", "client 2", "descri", "15-06-2015", "17-10-2017", 15, 5),
         ("J-002-005", "client 2", "descri", "15-06-2015", "17-10-2017", 15, 5),
-        ("J-003-006", "client 3x", "descri", "15-06-2015", "17-10-2017", 15, 5),
-        ("J-003-007", "client 3x", "descri", "15-06-2015", "17-10-2017", 15, 5),
+        ("J-003-006", "client 3", "descri", "15-06-2015", "17-10-2017", 15, 5),
+        ("J-003-007", "client 3", "descri", "15-06-2015", "17-10-2017", 15, 5),
     ]
     cursor.executemany("""
         INSERT INTO job ("key", "Code_Job","Produit", "Brief", "Date_Debut",
@@ -568,7 +569,7 @@ def make_db():
     connection.close()
 
 
-def del_selected(tabview, model, table=None ):
+def del_selected(tabview, model, table=None):
     """Func to diplay QtGui.QMessageBox before deleting entry.
 
     Args:
