@@ -1,0 +1,27 @@
+button 
+ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #1E88E5, stop:1 #1565C0);
+
+button hover
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #1565C0, stop:1 #1565C0);
+
+
+button click
+background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #1565C0, stop:1 #0D47A1);
+
+flat text button:
+#E3F2FD
+#42A5F5
+color:  qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #E3F2FD, stop:1 #42A5F5);
+
+main background
+background-color: #303030;
+
+groupbox background
+background-color: #424242;
+
+main text 
+color: #FFFFFF;
+
+secondary text
+color: #CED0D7;
+

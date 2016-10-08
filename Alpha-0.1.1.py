@@ -4,15 +4,16 @@ import sys
 import sqlite3
 import unicodedata
 from PyQt4 import QtCore, QtGui, QtSql, uic
-from billQdialog import Bill_Dialog
+from billQdialog import Ui_Dialog
 from itertools import cycle
 from functools import partial
 # from kiwi_UI import Ui_MainWindow
 
 # GLOBAL VAR
 DB = "Alpha.db"
-STYLES = ['blank.css', 'blender.css', 'blender_mod_btns.css']
-# 'dark-blue.css', 'dark-green.css','dark-orange.css',
+
+STYLES = ['blender_mod_btns.css', 'blank.css']
+# , 'blender.css', 'dark-blue.css', 'dark-green.css','dark-orange.css',
 # 'light-blue.css', 'light-green.css','light-orange.css']
 STYLE = cycle(STYLES)
 STRING_CC = ""
@@ -816,10 +817,6 @@ def input_window(tab=None, model=None, combo=None, cols_to_fetch=None,
 
             tabview.model().select()
 
-
-
-
-
         else:
             raise NotImplementedError
 
@@ -1301,12 +1298,31 @@ def new_bill_input_dialog(combo, table):
             add_to_db_v2(table="orders", d=orders_dict, close_win=win)
         table.model().select()
 
+    def txtchanged(text, k=None):
+        # print "%s: " % (k.objectName())
+        input_fields[k] = text
+        input_fields_str[k.objectName()] = text
+
+        # print "saved data: ", input_fields[k]
+
+    def datechanged(date, k=None):
+        input_fields[k] = date
+        input_fields_str[k.objectName()] = input_fields[k].toPyDate()
+        
+    def numchanged(num, k=None):
+        input_fields[k] = num
+        input_fields_str[k.objectName()] = num
+
+    def cb_selectchanged(index, k=None):
+        print "index of cb: ", index, "value: ", k.currentText()
+        input_fields[k] = k.currentText()
+        input_fields_str[k.objectName()] = str(input_fields[k])
+
     try:
         _fromUtf8 = QtCore.QString.fromUtf8
     except AttributeError:
         def _fromUtf8(s):
             return s
-
     try:
         _encoding = QtGui.QApplication.UnicodeUTF8
 
@@ -1316,13 +1332,94 @@ def new_bill_input_dialog(combo, table):
         def _translate(context, text, disambig):
             return QtGui.QApplication.translate(context, text, disambig)
 
-    win = Bill_Dialog()
+    win = Ui_Dialog()
     dialog = QtGui.QDialog()
     win.setupUi(dialog)
-
-
     set_style(dialog)
-    dialog.exec_()
+
+    print "\n Bill dialog opened."
+
+    # define fields that user inputs in a dict to loop over when the text changes
+    input_keys   = [win.leNumBill, win.leCity, win.leClientName,
+                    win.leProduct, win.deCreationDate, win.cbBillCat, 
+                    win.deItemDate, win.sbItemQty, win.leUnitPrice]
+
+    # input_keys   = [win.leNumBill, win.leCity, win.leClientName]
+
+    input_fields = {key: '' for key in input_keys}
+    input_fields_str = {key.objectName(): '<>' for key in input_keys}
+
+    # # UNCOMMENT SECTION FOR DEBUGGING /START/
+    print "-" * 60
+    print "Before Ok:"
+    print "Object dict{}", len(input_fields), "item(s) long: "    
+    for key in input_fields:
+        print key, ":", input_fields[key]
+    
+    print
+
+    print "ObjectName dict{}", len(input_fields_str), "item(s) long: "
+    for key in input_fields_str:
+        print key, ":", input_fields_str[key]
+    print "-" * 60    
+    # # UNCOMMENT SECTION FOR DEBUGGING /END/
+
+    for key in input_fields:
+        # Loop over elements in dict and according to their class
+        # (QLineEdit, QDateEdite, QSpinBox etc.) extract data and
+        # store in corresponding value of dict
+
+        # # UNCOMMENT SECTION FOR DEBUGGING /START/
+        # print "key : %s" % key
+        # print "key.objectName(): ", str(key.objectName())
+        # print "value: ", input_fields[key]
+        # # UNCOMMENT SECTION FOR DEBUGGING /END/
+
+        if str(key.objectName()).startswith('le'):
+            key.textChanged.connect(partial(txtchanged, k=key))       
+
+        elif str(key.objectName()).startswith('de'):
+            # input_fields[key] = key.date()
+            # input_fields_str[key.objectName()] = input_fields[key].toPyDate()
+            key.dateChanged.connect(partial(datechanged, k=key))
+
+        elif str(key.objectName()).startswith('sb'):
+            key.valueChanged.connect(partial(numchanged, k=key))
+            
+        elif str(key.objectName()).startswith('cb'):
+            key.currentIndexChanged.connect(partial(cb_selectchanged, k=key))
+
+        else:
+            print "not valid format"
+    # Business code
+    result = dialog.exec_()  
+    print "-" * 80
+    print "Bill dialog closed with a ",
+    if result == 1:
+        print "`Ok`"
+        # do stuff here like wirte a docx. document using that gathered data
+    else:
+        print "`Cancel`"
+
+    # # UNCOMMENT SECTION FOR DEBUGGING /START/
+    print "-" * 60
+    print "After Ok:"
+    print "Pressed `Ok`"
+    print "Object dict{}", len(input_fields), "item(s) long."
+    for key in input_fields:
+        print key, ":", input_fields[key]
+    
+    print
+    
+    print "ObjectName dict{}", len(input_fields_str), "item(s) long."
+    for key in input_fields_str:
+        print key, ":", input_fields_str[key]
+    print "-" * 60
+    # # UNCOMMENT SECTION FOR DEBUGGING /START/
+        
+
+
+    
 
     # btnDone.clicked.connect(update_db_wrapper)
     # btnCancel.clicked.connect(cancel)

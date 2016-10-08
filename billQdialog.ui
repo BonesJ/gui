@@ -24,7 +24,7 @@
        <item row="1" column="0">
         <widget class="QToolBox" name="toolBox">
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="page_5">
           <property name="geometry">
@@ -74,7 +74,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_3"/>
+              <widget class="QLineEdit" name="leCity"/>
              </item>
              <item>
               <widget class="QLabel" name="label_4">
@@ -90,7 +90,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QDateEdit" name="dateEdit">
+              <widget class="QDateEdit" name="deCreationDate">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -123,7 +123,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_5"/>
+              <widget class="QLineEdit" name="leProduct"/>
              </item>
             </layout>
            </item>
@@ -137,7 +137,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_2"/>
+              <widget class="QLineEdit" name="leNumBill"/>
              </item>
             </layout>
            </item>
@@ -163,7 +163,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_4"/>
+              <widget class="QLineEdit" name="leClientName"/>
              </item>
             </layout>
            </item>
@@ -200,7 +200,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QFontComboBox" name="fontComboBox"/>
+                <widget class="QFontComboBox" name="billFontComboBox"/>
                </item>
                <item>
                 <spacer name="horizontalSpacer_4">
@@ -226,7 +226,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="spinBox_2"/>
+                <widget class="QSpinBox" name="billFontSize"/>
                </item>
               </layout>
              </item>
@@ -483,7 +483,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QComboBox" name="comboBox_3">
+                  <widget class="QComboBox" name="cbBillCat">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
                      <horstretch>0</horstretch>
@@ -505,6 +505,51 @@
                    <item>
                     <property name="text">
                      <string>&lt;Select Category&gt;</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Couverture Evenement</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Shooting Photo</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Shooting Video</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Shooting Photo-Video</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Packshot Produit</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>3D Conception (Stand)</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>3D Conception (Objet, Model, Structure)</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>2D Conception Logo</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>2D Conception Maquette (Vectoriel, Bitmap)</string>
                     </property>
                    </item>
                   </widget>
@@ -549,7 +594,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QDateEdit" name="dateEdit_2">
+                  <widget class="QDateEdit" name="deItemDate">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
                      <horstretch>0</horstretch>
@@ -674,7 +719,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QSpinBox" name="spinBox">
+                  <widget class="QSpinBox" name="sbItemQty">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
                      <horstretch>0</horstretch>
@@ -723,7 +768,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLineEdit" name="lineEdit_8">
+                  <widget class="QLineEdit" name="leUnitPrice">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
                      <horstretch>0</horstretch>
@@ -962,6 +1007,14 @@ QPushButton:!enabled {
           </layout>
          </widget>
          <widget class="QWidget" name="page_3">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>722</width>
+            <height>316</height>
+           </rect>
+          </property>
           <attribute name="label">
            <string>Preview</string>
           </attribute>
