@@ -3,3 +3,9 @@ non-working/
 themes/
 Alpha.db
 aaa-update-billQdialog.bat
+.texbuild/
+SumatraPDF/
+img/
+sumatrapdfcache/
+test/
+previous-versions/Alpha-0.1.1.py
