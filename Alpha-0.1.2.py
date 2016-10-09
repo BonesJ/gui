@@ -1168,18 +1168,13 @@ def new_bill_input_dialog(combo, table):
         generate_latex()
         # import webbrowser
         # webbrowser.open_new(r'file:///C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/.texbuild/jinja2build/jinja2-testOut.pdf')
+        
         import subprocess
-         
-        pdf = "C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/.texbuild/jinja2build/jinja2-testOut.pdf"
-        acrobatPath = r'SumatraPDF.exe'
+        # pdf = "C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/.texbuild/jinja2build/jinja2-testOut.pdf"
+        rel_pdf = ".texbuild/jinja2build/jinja2-testOut.pdf"
+        pdf = os.path.join(os.sep, os.path.dirname(__file__), rel_pdf)
+        acrobatPath = r'SumatraPDF/SumatraPDF.exe'
         subprocess.Popen("%s %s" % (acrobatPath, pdf))
-        
-        # win.webView.settings().setAttribute(QtWebKit.QWebSettings.PluginsEnabled, True)
-        # # win.webView.show()
-        # win.webView.setUrl(QtCore.QUrl("file:///C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/.texbuild/jinja2build/jinja2-testOut.pdf"))
-        
-        # add this in billDialog.py
-        # self.webView.settings().setAttribute(QWebSettings.PluginsEnabled, True)
 
     try:
         _fromUtf8 = QtCore.QString.fromUtf8
@@ -1295,10 +1290,9 @@ def generate_latex():
 
     # function used to split number every 3rd char 
     # and add a comma
-    def splitAt(w,n):
-        for i in range(0,len(w),n):
-            yield w[i:i+n]
-
+    def splitAt(w, n):
+        for i in range(0, len(w), n):
+            yield w[i: i + n]
 
     latex_jinja_env = jinja2.Environment(
         block_start_string='\BLOCK{',
@@ -1320,7 +1314,6 @@ def generate_latex():
     build_d = "{}.texbuild/jinja2build/".format(project)
     out_file = "{}jinja2-testOut".format(build_d)
 
-
     template = latex_jinja_env.get_template('kiwi-template-1.tex')
     numfac = 'FAC000-000'
     client_name = 'ALSTOM ALGERIE'
@@ -1331,13 +1324,14 @@ def generate_latex():
     category = "Couverture Evenement"
     qty = "1"
     unit_price = "160000"
-    total_price = str(int(qty)*int(unit_price))
+    total_price = str(int(qty) * int(unit_price))
     numbers = [unit_price, total_price]
 
     for idx, val in enumerate(numbers):
-        numbers[idx] = ",".join(splitAt(val,3))
+        numbers[idx] = ",".join(splitAt(val, 3))
 
-    if not os.path.exists(build_d):  # create the build directory if not exisiting
+    # create the build directory if not exisiting
+    if not os.path.exists(build_d):
         os.makedirs(build_d)
 
     # print(template.render(section1='Long Form', section2='Short Form'))
@@ -1346,10 +1340,10 @@ def generate_latex():
                                city=city,
                                date_bill_creation=date_bill_creation,
                                nap=nap,
-                               category = category,
-                               qty = qty,
-                               unit_price = numbers[0],
-                               total_price = numbers[1],
+                               category=category,
+                               qty=qty,
+                               unit_price=numbers[0],
+                               total_price=numbers[1],
                                product=product)
 
     with io.open(out_file+".tex", "w", encoding='utf8') as f:  # saves tex_code to outpout file
