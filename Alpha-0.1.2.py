@@ -7,6 +7,7 @@ from PyQt4 import QtCore, QtGui, QtSql, QtWebKit, uic
 from billQdialog import Ui_Dialog
 from itertools import cycle
 from functools import partial
+import compiled_resources
 # from kiwi_UI import Ui_MainWindow
 
 # GLOBAL VAR
@@ -58,6 +59,7 @@ class MyWindow(QtGui.QMainWindow):
         """
         super(MyWindow, self).__init__()
         # self.setupUi(self)
+    # ===========================================================FUNCTIONS DEFS
 
         def del_selected_jobs():
             """WF for jobs data using function `del_selected()`."""
@@ -72,12 +74,26 @@ class MyWindow(QtGui.QMainWindow):
             print self.comboBoxClients.currentText()
             if "<Select Client>" in self.comboBoxClients.currentText():
                 self.btnNewJ.setEnabled(False)
-                self.btnEditBrief.setEnabled(False)
+                self.btnEditJ.setEnabled(False)
                 self.btnDelJ.setEnabled(False)
             else:
                 self.btnNewJ.setEnabled(True)
-                self.btnEditBrief.setEnabled(True)
+                self.btnEditJ.setEnabled(True)
                 self.btnDelJ.setEnabled(True)
+
+        def combo_emails_status():
+            """Func to disable bills btns unless sth selected in ComboBox."""
+            print self.comboBoxEmails.currentText()
+            if "<Custom>" in self.comboBoxEmails.currentText():
+                self.leCustomEmail.setMinimumWidth(160)
+                self.btnSendMail.setEnabled(False)
+            elif "<Select Email>" in self.comboBoxEmails.currentText():
+                self.btnSendMail.setEnabled(False)
+                self.leCustomEmail.setMaximumWidth(0)
+                self.leCustomEmail.setMinimumWidth(0)
+            else:
+                self.leCustomEmail.setMaximumWidth(0)
+                self.leCustomEmail.setMinimumWidth(0)
 
         def update_combo_client_for_jobs():
             """Function update contents of ComboBox.
@@ -153,6 +169,63 @@ class MyWindow(QtGui.QMainWindow):
             # print "\n"
             # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
+        def job_bill_btnstate(b, combo):
+            
+            print "button: ", b.text()
+            combo.setEnabled(True)
+            combo.setMinimumWidth(150)
+
+            if b.text() == "Clients":
+                # combo.setEnabled(True)
+                # combo.setMinimumWidth(150)
+                combo.addItem("<Select Client>")
+                if b.isChecked():
+                    # print b.text() + " is selected"
+                    update_combo_from_db(combo=combo,
+                                         column="Code_Client",
+                                         table="client")
+
+                    args = partial(update_combo_from_db,
+                                   combo=combo,
+                                   column="Code_Client",
+                                   table="client")
+                    combo.highlighted.connect(args)
+                else:
+                    # print b.text() + " is deselected"
+                    combo.highlighted.disconnect()
+                    combo.clear()
+
+            if b.text() == "Jobs":
+                # combo.setEnabled(True)
+                # combo.setMinimumWidth(150)
+                combo.addItem("<Select Job>")
+
+                if b.isChecked():
+                    print b.text() + " is selected"
+                    update_combo_from_db(combo=combo,
+                                         column="Code_Job",
+                                         table="job")
+                    args = partial(update_combo_from_db,
+                                   combo=combo,
+                                   column="Code_Job",
+                                   table="job")
+                    combo.highlighted.connect(args)
+                else:
+                    print b.text() + " is deselected"
+                    combo.highlighted.disconnect()
+                    combo.clear()
+
+            if b.text() == "All":
+                combo.setMinimumWidth(0)
+                combo.setMaximumWidth(0)
+                combo.setEnabled(False)
+                get_jobs(self.comboBoxClients, self.jobsTable,
+                         self.model2, showall=True)
+                print "Will print all and disable combobox"
+
+        def update_combo_client_for_bills():
+            update_combo_from_db(self.comboBoxBills, "Code_Client", "client")
+
         def get_jobs_wrapper():
             """WF for jobs using function `get_jobs()`.
 
@@ -160,7 +233,6 @@ class MyWindow(QtGui.QMainWindow):
             self.comboBoxClients, self.jobsTable, self.model2
             """
             get_jobs(self.comboBoxClients, self.jobsTable, self.model2)
-        
 
         def dock_toggle():
             """Func to toggle `Modifications` dock."""
@@ -257,59 +329,123 @@ class MyWindow(QtGui.QMainWindow):
                     data = f.read()
                     self.contents.setText(data)
 
-        # # Configure btns, views, models
+    # ===============================================APPLICATION INITIALISATION
+        # # load ui
+        uic.loadUi('kiwi_UI.ui', self)
+        a = change_theme()
+
+        # close dock widget by default
+        self.dockWidget.close()
+        self.btnModif.clicked.connect(dock_toggle)
+
+        # menubar buttons
+        self.actionCycle_Theme.triggered.connect(change_theme)
+        self.actionLoad.triggered.connect(getfiles)
+
+    # =============================================================FACTURES TAB
+
+        # In here configure applicationwide settings(models, theme, dock etc.)
+
         self.model = model
         self.model2 = model2
         self.model3 = model3
 
-        # # load ui
-        uic.loadUi('kiwi_UI.ui', self)
 
-        # # load db into tableClients
-        self.clientsTable.setModel(self.model)
+        
+        init_tree_view(self.treeView)
+
+        # # disable  Bills and Jobs buttons as Default
+        self.btnNewJ.setEnabled(False)
+        self.btnEditJ.setEnabled(False)
+        self.btnDelJ.setEnabled(False)
+        self.btnNewBill.setEnabled(True)
+
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # Clients groupbox Managment
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        # ========================================================Buttons Setup
+        self.btnNewC.clicked.connect(new_client)
+        self.btnEditC.clicked.connect(edit_client)
+        self.btnDelC.clicked.connect(del_selected_clients)
+
+        # ==========================================================Table Setup
+        self.clientsTable.setModel(self.model)  # load db into tableClients
         self.clientsTable.setEditTriggers(
             QtGui.QAbstractItemView.NoEditTriggers)
-
-        # close dock widget by default
-        self.dockWidget.close()
-
-        # trick to auto resize columns
+        # trick to auto resize columns, hide, configure then show.
         self.clientsTable.setVisible(False)
         self.clientsTable.resizeColumnsToContents()
         self.clientsTable.resizeRowsToContents()
         hh = self.clientsTable.horizontalHeader()
         hh.setStretchLastSection(True)
-
+        self.clientsTable.setShowGrid(False)
+        self.clientsTable.setSortingEnabled(True)
         self.clientsTable.setVisible(True)
 
-        self.clientsTable.setShowGrid(False)
-        # self.clientsTable.horizontalHeader().setVisible(False)
-        self.clientsTable.setSortingEnabled(True)
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # Jobs groupbox Managment
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        init_tree_view(self.treeView)
+        # ========================================================Buttons Setup
+        # Blue Push buttons
+        self.btnNewJ.clicked.connect(new_job)
+        self.btnEditJ.clicked.connect(edit_job)
+        self.btnDelJ.clicked.connect(del_selected_jobs)
 
+        # Radio buttons
+        JClients = partial(job_bill_btnstate, b=self.radioButtonJClients,
+                                              combo=self.comboBoxClients)
+        JAll = partial(job_bill_btnstate, b=self.radioButtonBAll,
+                                          combo=self.comboBoxClients)
+
+        self.radioButtonJClients.toggled.connect(JClients)  # Args too long...
+        self.radioButtonJAll.toggled.connect(JAll)
+
+        # View selection ComboBox
+        self.comboBoxClients.setMinimumWidth(0)  # initially hide ComboBoxe
+        self.comboBoxClients.setMaximumWidth(0)
         self.comboBoxClients.currentIndexChanged.connect(combo_jobs_status)
-        self.comboBoxClients.highlighted.connect(update_combo_client_for_jobs)
+        # self.comboBoxClients.highlighted.connect(update_combo_client_for_jobs)
         self.comboBoxClients.activated.connect(get_jobs_wrapper)
 
-        self.actionCycle_Theme.triggered.connect(change_theme)
-        self.actionLoad.triggered.connect(getfiles)
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # Bills groupbox Managment
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        # # diable job buttons if no clients selected
-        self.btnNewJ.setEnabled(False)
-        self.btnEditBrief.setEnabled(False)
-        self.btnDelJ.setEnabled(False)
-        self.btnNewBill.setEnabled(True)
-
-        self.btnNewC.clicked.connect(new_client)
-        self.btnEditC.clicked.connect(edit_client)
-        self.btnNewJ.clicked.connect(new_job)
-        self.btnEditBrief.clicked.connect(edit_job)
+        # ========================================================Buttons Setup
+        # Blue Push buttons
         self.btnNewBill.clicked.connect(new_bill_input_wrapper)
 
-        self.btnDelC.clicked.connect(del_selected_clients)
-        self.btnDelJ.clicked.connect(del_selected_jobs)
-        self.btnModif.clicked.connect(dock_toggle)
+        # Radio buttons
+        BClients = partial(job_bill_btnstate, b=self.radioButtonBClients,
+                                              combo=self.comboBoxBills)
+
+        BJobs = partial(job_bill_btnstate, b=self.radioButtonBJobs,
+                                           combo=self.comboBoxBills)
+
+        BAll = partial(job_bill_btnstate, b=self.radioButtonBAll,
+                                          combo=self.comboBoxBills)
+
+        self.radioButtonBClients.toggled.connect(BClients)  # Args too long...
+        self.radioButtonBJobs.toggled.connect(BJobs)
+        self.radioButtonBAll.toggled.connect(BAll)
+
+        # View selection ComboBox
+        self.comboBoxBills.setMinimumWidth(0)  # initially hide ComboBoxe
+        self.comboBoxBills.setMaximumWidth(0)
+        self.comboBoxEmails.activated.connect(combo_emails_status)
+        # self.comboBoxEmails.currentIndexChanged.connect()  # NYI, soon will
+        # self.comboBoxEmails.highlighted.connect()  # NYI, soon will
+
+        self.leCustomEmail.setMinimumWidth(0)  # initially hide LineEdit
+        self.leCustomEmail.setMaximumWidth(0)
+
+    # =============================================================CHARGES TAB
+    # Add code here...
+    # =============================================================PANORAMA TAB
+    # Add code here
+    # =============================================================DEVIS TAB
 
         self.show()
 
@@ -518,7 +654,7 @@ def make_db():
     cursor.execute("""
         CREATE TABLE bill (
         "key" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "Code_Facture" VARCHAR(9),
+        "Code_Facture" VARCHAR(10),
         "Produit" TEXT,
         "NAP" VARCHAR(30),
         "Date_Facture" VARCHAR(30),
@@ -529,15 +665,15 @@ def make_db():
         );""")
 
     bill_data = [
-        ("F-001-001", "bill description...", 15000,
+        ("FAC001-001", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
-        ("F-002-002", "bill description...", 15000,
+        ("FAC002-002", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
-        ("F-002-003", "bill description...", 15000,
+        ("FAC002-003", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
-        ("F-003-004", "bill description...", 15000,
+        ("FAC003-004", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
-        ("F-003-005", "bill description...", 15000,
+        ("FAC003-005", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
     ]
     cursor.executemany("""
@@ -554,7 +690,7 @@ def make_db():
         job_id INTEGER,
         bill_id INTEGER,
         FOREIGN KEY(client_id) REFERENCES client(key),
-        FOREIGN KEY(job_id) REFERENCES job(key)
+        FOREIGN KEY(job_id) REFERENCES job(key),
         FOREIGN KEY(bill_id) REFERENCES bill(key)
         );""")
 
@@ -571,6 +707,41 @@ def make_db():
         INSERT INTO confirmed ("key","client_id", "job_id", "bill_id")
         VALUES(NULL,?,?,?)""", confirmed_data)
     connection.commit()
+
+    # "invoice_items table linking bills to parent jobs and clients
+    cursor.execute("""
+        CREATE TABLE invoice_items (
+        key INTEGER PRIMARY KEY,
+        Category VARCHAR,
+        Start_Date VARCHAR,
+        End_Date VARCHAR,
+        Description VARCHAR,
+        Quantity VARCHAR,
+        Unit_Price VARCHAR,
+        Subtotal VARCHAR,
+        Invoice_id INTEGER,
+        FOREIGN KEY (invoice_id) REFERENCES bill (key)
+        );""")    
+
+    invoice_data = [("Couverture Evenement", "15-10-2016", "15-10-2016", "Suivi Evenement Bingo", "1", "500000", "500000", 1),
+                     ("Shooting Photo", "15-10-2016", "15-10-2016", "Photoshoot model", "1", "500000", "500000", 1  ),
+                     ("Shooting Video", "15-10-2016", "15-10-2016", "Video dans le Holi DZ", "1", "0", "0", 1  ),
+                     ("3D Conception (Stand)", "15-10-2016", "15-10-2016", "STAND ATPA", "1", "1500000", "1500000", 1  ),
+                     ("Shooting Photo", "15-10-2016", "15-10-2016", "Photoshoot model", "1", "500000", "500000", 2  ),
+                     ("Shooting Video", "15-10-2016", "15-10-2016", "Video dans le Holi DZ", "1", "0", "0", 2  ),
+                     ("3D Conception (Stand)", "15-10-2016", "15-10-2016", "STAND ATPA", "1", "1500000", "1500000", 2  ),
+                     ("Shooting Photo", "15-10-2016", "15-10-2016", "Photoshoot model", "1", "500000", "500000", 3  ),
+                     ("Shooting Video", "15-10-2016", "15-10-2016", "Video dans le Holi DZ", "1", "0", "0", 3  ),
+                     ("3D Conception (Stand)", "15-10-2016", "15-10-2016", "STAND ATPA", "1", "1500000", "1500000", 4  ),]
+
+    cursor.executemany("""
+        INSERT INTO confirmed ("key","Category", "Start_Date", "End_Date",
+                               "Description", "Quantity", "Unit_Price", 
+                               "Subtotal")
+        VALUES(NULL,?,?,?,?,?,?,?)""", invoice_data)
+    connection.commit()
+    
+
     connection.close()
 
 
@@ -633,6 +804,83 @@ def del_selected(tabview, model, table=None):
         print 'No.'
     # warn.exec_()
     # w.close()
+
+
+def update_combo_from_db(combo, column, table):
+    """Function update contents of ComboBox.
+
+    Rewritten to take following arguments:
+    `ComboBox`, `ColumnName`, `Table` in order to fill ComboBox
+    with rows from `ColumnName` in `Table`. 
+
+
+    """
+    # UNCOMMENT SECTION FOR DEBUGGING /START/
+    print "\n"
+    print "-" * 80
+    print "START OF FUNCTION update combo client"
+    # UNCOMMENT SECTION FOR DEBUGGING /END/
+
+    connection = sqlite3.connect(DB)
+    cursor = connection.cursor()
+    # # UNCOMMENT SECTION FOR DEBUGGING /START/
+    # cursor.execute("""SELECT * FROM client""")
+    # result_all = cursor.fetchall()
+    # print "result all:", result_all
+    # # UNCOMMENT SECTION FOR DEBUGGING /END/
+
+    cursor.execute("""SELECT DISTINCT "{col}" FROM "{tab}" """.format(col=column, tab=table))
+    result_key = cursor.fetchall()
+    connection.close()
+
+    # UNCOMMENT SECTION FOR DEBUGGING /START/
+    print "result_key:", result_key
+    # UNCOMMENT SECTION FOR DEBUGGING /END/
+
+    for p in result_key:
+        p = list(p)
+        if p[0] is not None:
+            # # UNCOMMENT SECTION FOR DEBUGGING /START/
+            # print "unecoded", p
+            # # UNCOMMENT SECTION FOR DEBUGGING /END/
+
+            p = unicodedata.normalize('NFKD',
+                                      p[0]).encode('ascii', 'ignore')
+            # UNCOMMENT SECTION FOR DEBUGGING /START/
+            print "encoded" , p
+            # UNCOMMENT SECTION FOR DEBUGGING /END/
+        else:
+            # # UNCOMMENT SECTION FOR DEBUGGING /START/
+            # print p, "DID NOT ENCODE"
+            # # UNCOMMENT SECTION FOR DEBUGGING /END/
+            return
+        for i in range(combo.count()):
+
+            # # retrieve combox current items
+            allitems = [str(combo.itemText(u))
+                        for u in range(combo.count())]
+            # UNCOMMENT SECTION FOR DEBUGGING /START/
+            # print "All items:", allitems
+            # UNCOMMENT SECTION FOR DEBUGGING /END/
+
+            if p not in allitems:
+                # # UNCOMMENT SECTION FOR DEBUGGING /START/
+                # print "DID NOT ADD ITEM TO COMBO BOX"
+                # # add the name of the client by list compreh. search
+                # tup = [item for item in result_all if p in item]
+                # print "code:", tup
+                # # UNCOMMENT SECTION FOR DEBUGGING /END/
+                combo.addItem(p)
+                # # UNCOMMENT SECTION FOR DEBUGGING /START/
+                print "ADDED ITEM %s TO COMBO BOX" % p
+                print "All items:", allitems
+                # # UNCOMMENT SECTION FOR DEBUGGING /END/
+
+    # # UNCOMMENT SECTION FOR DEBUGGING /START/
+    # print "END OF FUNCTION update combo client"
+    # print "-" * 80
+    # print "\n"
+    # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
 
 def input_window(
@@ -991,7 +1239,7 @@ def input_window(
     win.exec_()
 
 
-def get_jobs(combo, table, model2):
+def get_jobs(combo, table, model2, showall=None):
     """Fetch data from ComboBox & display corresponding rows in QTableView.
 
     Thia function will show only jobs of selected client by hiding all other
@@ -1017,7 +1265,13 @@ def get_jobs(combo, table, model2):
     # result_key = cursor.fetchall()
     # for r in result_key:
     #     print "result:", r
-    selected_item = [str(combo.currentText())]
+    if showall is None:
+        selected_item = [str(combo.currentText())]
+    elif showall is True:
+        selected_item = "<View All>"
+    elif showall is False:
+        selected_item = "<Select Client>"
+
     # print "selected_item[0]= ", selected_item[0]
     m = "<Select Client>"
     n = "<View All>"
@@ -1137,32 +1391,46 @@ def new_bill_input_dialog(combo, table):
 
     def txtchanged(text, k=None):
         # print "%s: " % (k.objectName())
-        input_fields[k] = text
-        input_fields_str[k.objectName()] = text
+        input_fields_to_data[k] = text
+        input_fields_to_data_str[str(k.objectName())] = text
+        
+        print "raw %r:" % str(k.objectName())
+        
+        input_fields_to_pLabels[k].setText(input_fields_to_data_str[str(k.objectName())])
 
-        # print "saved data: ", input_fields[k]
+        # if k.objectName() == u'leClientName':
+        #     win.labelClient.setText(input_fields_to_data_str[str(k.objectName())])
+        #     print "!!!entered!!!"
+        
+        # print "k.objectName() is type", type(k.objectName())
+        # print "saved data: ", input_fields_to_data[k]
 
     def datechanged(date, k=None):
-        input_fields[k] = date
-        input_fields_str[k.objectName()] = input_fields[k].toPyDate()
+        input_fields_to_data[k] = date
+        input_fields_to_data_str[str(k.objectName())] = str(date.toPyDate())
+        print "raw %r:" % str(k.objectName())
+        print "k.objectName() is type", type(k.objectName())
+        input_fields_to_pLabels[k].setText(str(date.toPyDate()))
 
     def numchanged(num, k=None):
-        input_fields[k] = num
-        input_fields_str[k.objectName()] = num
+        input_fields_to_data[k] = num
+        input_fields_to_data_str[str(k.objectName())] = num
+        input_fields_to_pLabels[k].setText(input_fields_to_data_str[str(k.objectName())])
 
     def cb_selectchanged(index, k=None):
         print "index of cb: ", index, "value: ", k.currentText()
-        input_fields[k] = k.currentText()
-        input_fields_str[k.objectName()] = str(input_fields[k])
+        input_fields_to_data[k] = k.currentText()
+        input_fields_to_data_str[str(k.objectName())] = str(input_fields_to_data[k])
+        input_fields_to_pLabels[k].setText(input_fields_to_data_str[str(k.objectName())])
 
-    def preview_invoice():
+    def preview_invoice_tex():
         print
         print "Invoice Preview:"
         print "=" * 80
         print
-        print "ObjectName dict{}", len(input_fields_str), "item(s) long."
-        for key in input_fields_str:
-            print key, ":", input_fields_str[key]
+        print "ObjectName dict{}", len(input_fields_to_data_str), "item(s) long."
+        for key in input_fields_to_data_str:
+            print key, ":", input_fields_to_data_str[key]
         print "END OF Invoice Preview:"
         print "=" * 80
         generate_latex()
@@ -1175,6 +1443,26 @@ def new_bill_input_dialog(combo, table):
         pdf = os.path.join(os.sep, os.path.dirname(__file__), rel_pdf)
         acrobatPath = r'SumatraPDF/SumatraPDF.exe'
         subprocess.Popen("%s %s" % (acrobatPath, pdf))
+
+    def preview_invoice_docx():
+        print "WORD GENERATION NOT IMPLEMENTED"
+
+    def btnstate(b):
+        if b.text() == "LaTeX":
+            if b.isChecked():
+                print b.text()+" is selected"
+                win.btnGenPreview.clicked.connect(preview_invoice_tex)
+            else:
+                print b.text()+" is deselected"
+                win.btnGenPreview.clicked.disconnect()
+
+        if b.text() == "MS Word":
+            if b.isChecked():
+                print b.text()+" is selected"
+                win.btnGenPreview.clicked.connect(preview_invoice_docx)
+            else:
+                print b.text()+" is deselected"
+                win.btnGenPreview.clicked.disconnect()
 
     try:
         _fromUtf8 = QtCore.QString.fromUtf8
@@ -1202,27 +1490,32 @@ def new_bill_input_dialog(combo, table):
                   win.leProduct, win.deCreationDate, win.cbBillCat,
                   win.deItemDate, win.sbItemQty, win.leUnitPrice]
 
+    preview_labels = [win.labelClient, win.labelCodeFac, win.labelProduit,
+                      win.labelDate]
     # input_keys   = [win.leNumBill, win.leCity, win.leClientName]
 
-    input_fields = {key: '' for key in input_keys}
-    input_fields_str = {key.objectName(): '<>' for key in input_keys}
-
+    input_fields_to_data = {key: '' for key in input_keys}
+    input_fields_to_data_str = {str(key.objectName()): '<>' for key in input_keys}
+    input_fields_to_pLabels = {win.leClientName : win.labelClient,
+                               win.leNumBill : win.labelCodeFac,
+                               win.leProduct : win.labelProduit,
+                               win.deCreationDate : win.labelDate}
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
     print "-" * 60
     print "Before Ok:"
-    print "Object dict{}", len(input_fields), "item(s) long: "
-    for key in input_fields:
-        print key, ":", input_fields[key]
+    print "Object dict{}", len(input_fields_to_data), "item(s) long: "
+    for key in input_fields_to_data:
+        print key, ":", input_fields_to_data[key]
 
     print
 
-    print "ObjectName dict{}", len(input_fields_str), "item(s) long: "
-    for key in input_fields_str:
-        print key, ":", input_fields_str[key]
+    print "ObjectName dict{}", len(input_fields_to_data_str), "item(s) long: "
+    for key in input_fields_to_data_str:
+        print key, ":", input_fields_to_data_str[key]
     print "-" * 60
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-    for key in input_fields:
+    for key in input_fields_to_data:
         # Loop over elements in dict and according to their class
         # (QLineEdit, QDateEdite, QSpinBox etc.) extract data and
         # store in corresponding value of dict
@@ -1230,15 +1523,15 @@ def new_bill_input_dialog(combo, table):
         # # UNCOMMENT SECTION FOR DEBUGGING /START/
         # print "key : %s" % key
         # print "key.objectName(): ", str(key.objectName())
-        # print "value: ", input_fields[key]
+        # print "value: ", input_fields_to_data[key]
         # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
         if str(key.objectName()).startswith('le'):
             key.textChanged.connect(partial(txtchanged, k=key))
 
         elif str(key.objectName()).startswith('de'):
-            # input_fields[key] = key.date()
-            # input_fields_str[key.objectName()] = input_fields[key].toPyDate()
+            # input_fields_to_data[key] = key.date()
+            # input_fields_to_data_str[key.objectName()] = input_fields_to_data[key].toPyDate()
             key.dateChanged.connect(partial(datechanged, k=key))
 
         elif str(key.objectName()).startswith('sb'):
@@ -1250,9 +1543,22 @@ def new_bill_input_dialog(combo, table):
         else:
             print "not valid format"
     # Business code
-    win.btnGenPreview.clicked.connect(preview_invoice)
+    win.rbLatex.toggled.connect(partial(btnstate, b=win.rbLatex))
+    win.rbWord.toggled.connect(partial(btnstate, b=win.rbWord))
 
+    
+    
     result = dialog.exec_()
+
+
+    # mapping variables from dict to labels
+
+    win.labelClient.setText(input_fields_to_data_str[u'leClientName'])
+    win.labelCodeFac.setText(input_fields_to_data_str["leNumBill"])
+    win.labelProduit.setText(input_fields_to_data_str["leProduct"])
+    win.labelDate.setText(str(input_fields_to_data_str["deCreationDate"]))
+    
+    
     print "-" * 80
     print "Bill dialog closed with a ",
 
@@ -1262,21 +1568,21 @@ def new_bill_input_dialog(combo, table):
     else:
         print "`Cancel`"
 
-    # # UNCOMMENT SECTION FOR DEBUGGING /START/
-    # print "-" * 60
-    # print "After Ok:"
-    # print "Pressed `Ok`"
-    # print "Object dict{}", len(input_fields), "item(s) long."
-    # for key in input_fields:
-    #     print key, ":", input_fields[key]
+    # UNCOMMENT SECTION FOR DEBUGGING /START/
+    print "-" * 60
+    print "After Ok:"
+    print "Pressed `Ok`"
+    print "Object dict{}", len(input_fields_to_data), "item(s) long."
+    for key in input_fields_to_data:
+        print key, ":", input_fields_to_data[key]
 
-    # print
+    print
 
-    # print "ObjectName dict{}", len(input_fields_str), "item(s) long."
-    # for key in input_fields_str:
-    #     print key, ":", input_fields_str[key]
-    # print "-" * 60
-    # # UNCOMMENT SECTION FOR DEBUGGING /START/
+    print "ObjectName dict{}", len(input_fields_to_data_str), "item(s) long."
+    for key in input_fields_to_data_str:
+        print key, ":", input_fields_to_data_str[key]
+    print "-" * 60
+    # UNCOMMENT SECTION FOR DEBUGGING /START/
 
     # btnDone.clicked.connect(update_db_wrapper)
     # btnCancel.clicked.connect(cancel)
@@ -1560,5 +1866,6 @@ if __name__ == '__main__':
     # app.setStyleSheet('blender_mod_btns.css')
 
     window = MyWindow(model, model2, model3)
+    
 
     sys.exit(app.exec_())

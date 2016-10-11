@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>907</width>
-    <height>609</height>
+    <width>840</width>
+    <height>643</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,6 +29,9 @@
   </property>
   <property name="styleSheet">
    <string notr="true"/>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Triangular</enum>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
@@ -238,8 +241,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>624</width>
-             <height>1010</height>
+             <width>542</width>
+             <height>1011</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_9">
@@ -290,25 +293,31 @@
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
-color: rgb(188, 195, 195);
+                       <string notr="true">font: bold 12pt ;
+color: rgb(255, 255, 255);
 border:1px solid rgba(227, 238, 238, 100);</string>
                       </property>
                       <property name="text">
                        <string>Revenu</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_35">
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
+                       <string notr="true">font: bold 12pt ;
 color: white;
 border:1px solid rgba(227, 238, 238, 100);
 background-color: #656565;</string>
                       </property>
                       <property name="text">
                        <string>150 00</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -328,24 +337,31 @@ background-color: #656565;</string>
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
-color: rgb(188, 195, 195);
+                       <string notr="true">font: bold 12pt ;
+color: rgb(255, 255, 255);
 border:1px solid rgba(227, 238, 238, 100);</string>
                       </property>
                       <property name="text">
                        <string>Charges</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_34">
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
+                       <string notr="true">font: bold 12pt ;
 color: white;
-border:1px solid rgba(227, 238, 238, 100);background-color: #656565;</string>
+border:1px solid rgba(227, 238, 238, 100);
+background-color: #656565;</string>
                       </property>
                       <property name="text">
                        <string>100 000</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -365,24 +381,32 @@ border:1px solid rgba(227, 238, 238, 100);background-color: #656565;</string>
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
-color: rgb(188, 195, 195);
+                       <string notr="true">font: bold 12pt ;
+color: rgb(255, 255, 255);
 border:1px solid rgba(227, 238, 238, 100);</string>
                       </property>
                       <property name="text">
                        <string>Bénéfice Oopérationnel</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_33">
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
-color:rgb(111, 178, 61);
-border:1px solid rgba(227, 238, 238, 100);background-color: #656565;</string>
+                       <string notr="true">font: bold 12pt;
+
+color: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(106, 255, 78, 255), stop:1 rgba(82, 152, 55, 255));
+border:1px solid rgba(227, 238, 238, 100);
+background-color: #656565;</string>
                       </property>
                       <property name="text">
                        <string>50 000</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -409,12 +433,15 @@ border:1px solid rgba(227, 238, 238, 100);background-color: #656565;</string>
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
-color: rgb(188, 195, 195);
+                       <string notr="true">font: bold 12pt ;
+color: rgb(255, 255, 255);
 border:1px solid rgba(227, 238, 238, 100);</string>
                       </property>
                       <property name="text">
                        <string>Moins</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -435,7 +462,7 @@ border:1px solid rgba(227, 238, 238, 100);background-color: #656565;</string>
                        <item row="0" column="0">
                         <widget class="QCheckBox" name="checkBox_4">
                          <property name="styleSheet">
-                          <string notr="true">font: bold 8pt &quot;Gill Sans MT&quot;;
+                          <string notr="true">font: bold 8pt ;
 border: none;</string>
                          </property>
                          <property name="text">
@@ -446,7 +473,7 @@ border: none;</string>
                        <item row="0" column="1">
                         <widget class="QCheckBox" name="checkBox_5">
                          <property name="styleSheet">
-                          <string notr="true">font: bold 8pt &quot;Gill Sans MT&quot;;
+                          <string notr="true">font: bold 8pt ;
 border: none;</string>
                          </property>
                          <property name="text">
@@ -473,25 +500,32 @@ border: none;</string>
                        </size>
                       </property>
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
-color: rgb(188, 195, 195);
+                       <string notr="true">font: bold 12pt ;
+color: rgb(255, 255, 255);
 border:1px solid rgba(227, 238, 238, 100);</string>
                       </property>
                       <property name="text">
                        <string>Bénéfice Net</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_37">
                       <property name="styleSheet">
-                       <string notr="true">font: bold 12pt &quot;Gill Sans MT&quot;;
-color:rgb(111, 178, 61);
+                       <string notr="true">font: bold 12pt;
+
+color: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(106, 255, 78, 255), stop:1 rgba(82, 152, 55, 255));
 border:1px solid rgba(227, 238, 238, 100);
 background-color: #656565;</string>
                       </property>
                       <property name="text">
                        <string>50 000</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -982,9 +1016,9 @@ QTabBar::tab:only-one {
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
-             <width>771</width>
-             <height>551</height>
+             <y>-32</y>
+             <width>790</width>
+             <height>506</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -1118,21 +1152,7 @@ QTabBar::tab:only-one {
                   <item>
                    <widget class="QPushButton" name="btnEditC">
                     <property name="styleSheet">
-                     <string notr="true">QPushButton:hover:!pressed {
-    border-style: outset;
-	border-top-color: rgb(0, 200, 0);
-	border-left-color: rgb(0, 200, 0);
-	border-right-color: rgb(0, 200, 0);
-	border-bottom-color: rgb(0, 100, 0);
-
-}
-QPushButton:hover {
-    border-style: inset;
-	border-color:rgb(0, 100, 0);
-
-}
-
-</string>
+                     <string notr="true"/>
                     </property>
                     <property name="text">
                      <string>Edit</string>
@@ -1171,6 +1191,22 @@ QPushButton:hover {
                     </property>
                    </widget>
                   </item>
+                  <item>
+                   <spacer name="verticalSpacer_5">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::MinimumExpanding</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1197,18 +1233,58 @@ QPushButton:hover {
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout">
                     <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_18">
+                      <item>
+                       <widget class="QLabel" name="label_20">
+                        <property name="styleSheet">
+                         <string notr="true">QLabel{
+	background-color: rgba(255, 255, 255, 0);
+	font: 10pt &quot;Roboto&quot;
+}</string>
+                        </property>
+                        <property name="text">
+                         <string>Show from:</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QRadioButton" name="radioButtonJClients">
+                        <property name="text">
+                         <string>Clients</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QRadioButton" name="radioButtonJAll">
+                        <property name="text">
+                         <string>All</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
                      <widget class="QComboBox" name="comboBoxClients">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>56</width>
+                        <width>150</width>
                         <height>24</height>
                        </size>
+                      </property>
+                      <property name="maxVisibleItems">
+                       <number>20</number>
+                      </property>
+                      <property name="sizeAdjustPolicy">
+                       <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
                       </property>
                       <item>
                        <property name="text">
@@ -1232,7 +1308,7 @@ QPushButton:hover {
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
-                        <width>335</width>
+                        <width>250</width>
                         <height>20</height>
                        </size>
                       </property>
@@ -1287,7 +1363,7 @@ QPushButton:hover {
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btnEditBrief">
+                   <widget class="QPushButton" name="btnEditJ">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -1331,6 +1407,22 @@ QPushButton:hover {
                     </property>
                    </widget>
                   </item>
+                  <item>
+                   <spacer name="verticalSpacer_4">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::MinimumExpanding</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
                  </layout>
                 </item>
                </layout>
@@ -1363,24 +1455,75 @@ QPushButton:hover {
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_6">
                       <item>
-                       <widget class="QComboBox" name="comboBox_2">
+                       <layout class="QHBoxLayout" name="horizontalLayout_17">
+                        <item>
+                         <widget class="QLabel" name="label_19">
+                          <property name="styleSheet">
+                           <string notr="true">QLabel{
+	background-color: rgba(255, 255, 255, 0);
+	font: 10pt &quot;Roboto&quot;
+}</string>
+                          </property>
+                          <property name="text">
+                           <string>Show from:</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QRadioButton" name="radioButtonBClients">
+                          <property name="text">
+                           <string>Clients</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QRadioButton" name="radioButtonBJobs">
+                          <property name="text">
+                           <string>Jobs</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QRadioButton" name="radioButtonBAll">
+                          <property name="text">
+                           <string>All</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <widget class="QComboBox" name="comboBoxBills">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
                         <property name="sizePolicy">
-                         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>56</width>
+                          <width>0</width>
                           <height>24</height>
                          </size>
                         </property>
-                        <item>
-                         <property name="text">
-                          <string>&lt;Select Job&gt;</string>
-                         </property>
-                        </item>
+                        <property name="maximumSize">
+                         <size>
+                          <width>0</width>
+                          <height>16777215</height>
+                         </size>
+                        </property>
+                        <property name="maxVisibleItems">
+                         <number>20</number>
+                        </property>
+                        <property name="sizeAdjustPolicy">
+                         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+                        </property>
                        </widget>
                       </item>
                       <item>
@@ -1393,7 +1536,7 @@ QPushButton:hover {
                         </property>
                         <property name="sizeHint" stdset="0">
                          <size>
-                          <width>335</width>
+                          <width>250</width>
                           <height>20</height>
                          </size>
                         </property>
@@ -1430,7 +1573,7 @@ QPushButton:hover {
                    </spacer>
                   </item>
                   <item>
-                   <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,0,0">
+                   <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,0,0,0">
                     <property name="spacing">
                      <number>5</number>
                     </property>
@@ -1497,6 +1640,22 @@ QPushButton:hover {
                       </property>
                      </widget>
                     </item>
+                    <item>
+                     <spacer name="verticalSpacer_6">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeType">
+                       <enum>QSizePolicy::MinimumExpanding</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
                    </layout>
                   </item>
                  </layout>
@@ -1507,7 +1666,7 @@ QPushButton:hover {
                    <number>5</number>
                   </property>
                   <item>
-                   <widget class="QComboBox" name="comboBox">
+                   <widget class="QComboBox" name="comboBoxEmails">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1519,10 +1678,66 @@ QPushButton:hover {
                       <string>&lt;Select Email&gt;</string>
                      </property>
                     </item>
+                    <item>
+                     <property name="text">
+                      <string>&lt;Custom&gt;</string>
+                     </property>
+                    </item>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="pushButton_6">
+                   <widget class="QLineEdit" name="leCustomEmail">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>0</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="frameOkCustomEmail">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>24</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">height: 48px;
+width: 48px;
+background-color: transparent;
+image: url(:/resources/icons/OK.png);
+</string>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::StyledPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btnSendMail">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -1565,62 +1780,7 @@ QPushButton:hover {
                      </sizepolicy>
                     </property>
                     <property name="styleSheet">
-                     <string notr="true">QCheckBox,
-QCheckBox:disabled {
-
-    color: rgb(188, 195, 195);
-    padding: 3px;
-    outline: none;
-    background-color: transparent;
-}
-
-QCheckBox::indicator {
-    color: black;
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #535353, stop:1 #373737);
-    border: 1px solid #292929;
-    width: 11px;
-    height: 11px;
-    border-radius:2px;
-}
-
-QCheckBox::indicator:hover {
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #626262, stop:1 #464646);
-}
-
-QCheckBox::indicator:pressed,
-QCheckBox::indicator:non-exclusive:checked:pressed,
-QCheckBox::indicator:indeterminate:pressed,
-QCheckBox::indicator:checked:pressed {
-    border-color: #292929; /* same as not pressed... just to disable the effect without deleting the code */
-}
-
-QCheckBox::indicator:checked {
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #373737, stop:1 #535353);
-    border: 1px solid #292929; /* QCheckBox has the same color */
-    
-	image: url(:/themes/images/checkbox_light.png);
-}
-
-QCheckBox:disabled {
-    color: #5c5c5c;
-    background-color: transparent;
-}
-
-QCheckBox::indicator:disabled {
-    background-color: transparent;
-    border: 1px solid #5c5c5c;
-}
-
-QCheckBox::indicator:indeterminate {
-    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #373737, stop:1 #535353);
-    border: 1px solid #292929; /* QCheckBox has the same color */
-    image: url(:/images/checkbox_indeterminate_light.png);
-}
-
-QCheckBox:focus {
-    border: none;
-}
-</string>
+                     <string notr="true"/>
                     </property>
                     <property name="text">
                      <string>Export PDF </string>
@@ -1781,7 +1941,7 @@ QPushButton:!enabled {
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>PROFORMAS</string>
+        <string>DEVIS</string>
        </attribute>
       </widget>
       <widget class="QWidget" name="tab_2">
@@ -2326,7 +2486,6 @@ QPushButton:!enabled {
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>-1</pointsize>
                   <weight>50</weight>
                   <italic>false</italic>
                   <bold>false</bold>
@@ -2577,7 +2736,7 @@ background-color: rgba(227, 238, 238,0);
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>907</width>
+     <width>840</width>
      <height>21</height>
     </rect>
    </property>
@@ -3127,8 +3286,8 @@ background-color: rgba(227, 238, 238,0);
   <tabstop>btnEditC</tabstop>
   <tabstop>btnDelC</tabstop>
   <tabstop>tabWidget</tabstop>
-  <tabstop>btnEditBrief</tabstop>
-  <tabstop>comboBox_2</tabstop>
+  <tabstop>btnEditJ</tabstop>
+  <tabstop>comboBoxBills</tabstop>
   <tabstop>btnDelJ</tabstop>
   <tabstop>jobsTable</tabstop>
   <tabstop>comboBoxClients</tabstop>
@@ -3137,8 +3296,8 @@ background-color: rgba(227, 238, 238,0);
   <tabstop>pushButton_3</tabstop>
   <tabstop>btnEditBill</tabstop>
   <tabstop>btnPreviewBill</tabstop>
-  <tabstop>comboBox</tabstop>
-  <tabstop>pushButton_6</tabstop>
+  <tabstop>comboBoxEmails</tabstop>
+  <tabstop>btnSendMail</tabstop>
   <tabstop>checkBox_2</tabstop>
   <tabstop>checkBox</tabstop>
   <tabstop>checkBox_3</tabstop>
@@ -3182,6 +3341,7 @@ background-color: rgba(227, 238, 238,0);
  </tabstops>
  <resources>
   <include location="themes/res.qrc"/>
+  <include location="resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

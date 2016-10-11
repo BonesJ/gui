@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>696</width>
-    <height>535</height>
+    <height>353</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -119,40 +119,27 @@
           <string notr="true">font: 75 10pt &quot;Roboto&quot;;</string>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="page_5">
           <property name="geometry">
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>660</width>
-            <height>271</height>
+            <width>643</width>
+            <height>146</height>
            </rect>
           </property>
           <attribute name="label">
            <string>Information</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_4">
-           <item row="4" column="0">
-            <spacer name="verticalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="1" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item row="2" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QLabel" name="label_3">
+              <widget class="QLabel" name="label_5">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -164,33 +151,37 @@
                 </size>
                </property>
                <property name="text">
-                <string>Ville:</string>
+                <string>Client</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="leCity"/>
+              <widget class="QLineEdit" name="leClientName"/>
              </item>
              <item>
-              <widget class="QLabel" name="label_4">
+              <widget class="QFrame" name="frameOkClientName">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
-                 <width>50</width>
-                 <height>0</height>
+                 <width>24</width>
+                 <height>24</height>
                 </size>
                </property>
-               <property name="text">
-                <string>Le:</string>
+               <property name="styleSheet">
+                <string notr="true">height: 48px;
+width: 48px;
+image: url(:/resources/icons/OK.png);</string>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDateEdit" name="deCreationDate">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
                </property>
               </widget>
              </item>
@@ -220,6 +211,33 @@
              <item>
               <widget class="QLineEdit" name="leProduct"/>
              </item>
+             <item>
+              <widget class="QFrame" name="frameOkProduct">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">height: 48px;
+width: 48px;
+image: url(:/resources/icons/OK.png);</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item row="0" column="0">
@@ -234,14 +252,42 @@
              <item>
               <widget class="QLineEdit" name="leNumBill"/>
              </item>
+             <item>
+              <widget class="QFrame" name="frameOkNumBill">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">height: 48px;
+width: 48px;
+image: url(:/resources/icons/OK.png);
+</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
-           <item row="2" column="0">
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item row="1" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
              <item>
-              <widget class="QLabel" name="label_5">
+              <widget class="QLabel" name="label_3">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
@@ -253,14 +299,104 @@
                 </size>
                </property>
                <property name="text">
-                <string>Client</string>
+                <string>Ville:</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="leClientName"/>
+              <widget class="QLineEdit" name="leCity"/>
+             </item>
+             <item>
+              <widget class="QFrame" name="frameOkCity">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">height: 48px;
+width: 48px;
+image: url(:/resources/icons/OK.png);</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="minimumSize">
+                <size>
+                 <width>50</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Le:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDateEdit" name="deCreationDate">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="frameOkCreationDate">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>24</width>
+                 <height>24</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">height: 48px;
+width: 48px;
+image: url(:/resources/icons/OK.png);</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+              </widget>
              </item>
             </layout>
+           </item>
+           <item row="4" column="0">
+            <spacer name="verticalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -1116,7 +1252,7 @@ QPushButton:!enabled {
             <x>0</x>
             <y>0</y>
             <width>660</width>
-            <height>271</height>
+            <height>89</height>
            </rect>
           </property>
           <attribute name="label">
@@ -1133,19 +1269,140 @@ QPushButton:!enabled {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>640</width>
-                <height>251</height>
+                <width>623</width>
+                <height>136</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_7">
-               <item row="1" column="0">
+               <item row="3" column="0">
+                <widget class="QFrame" name="framePreviewTable">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayoutPreviewTable">
+                  <item row="1" column="3">
+                   <widget class="QLabel" name="label_30">
+                    <property name="styleSheet">
+                     <string notr="true">font-weight: bold;</string>
+                    </property>
+                    <property name="text">
+                     <string>Montant</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="label_27">
+                    <property name="styleSheet">
+                     <string notr="true">font-weight: bold;</string>
+                    </property>
+                    <property name="text">
+                     <string>Designation</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QLabel" name="label_29">
+                    <property name="styleSheet">
+                     <string notr="true">font-weight: bold;</string>
+                    </property>
+                    <property name="text">
+                     <string>Prix Unitaire</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLabel" name="label_28">
+                    <property name="styleSheet">
+                     <string notr="true">font-weight: bold;</string>
+                    </property>
+                    <property name="text">
+                     <string>Quantiite</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0" colspan="4">
+                   <widget class="Line" name="seprLine1">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true"/>
+                    </property>
+                    <property name="lineWidth">
+                     <number>3</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0" colspan="4">
+                   <widget class="Line" name="sepLine2">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true"/>
+                    </property>
+                    <property name="lineWidth">
+                     <number>3</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <spacer name="verticalSpacer_6">
+                    <property name="orientation">
+                     <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>40</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="2" column="0">
                 <layout class="QHBoxLayout" name="horizontalLayout_23">
                  <item>
                   <layout class="QHBoxLayout" name="horizontalLayout_21">
                    <item alignment="Qt::AlignHCenter">
                     <widget class="QLabel" name="label_25">
                      <property name="text">
-                      <string>Produit</string>
+                      <string>Produit:</string>
                      </property>
                     </widget>
                    </item>
@@ -1156,6 +1413,9 @@ QPushButton:!enabled {
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">font-weight: bold;</string>
                      </property>
                      <property name="text">
                       <string>CCC</string>
@@ -1206,6 +1466,9 @@ QPushButton:!enabled {
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
+                     <property name="styleSheet">
+                      <string notr="true">font-weight: bold;</string>
+                     </property>
                      <property name="text">
                       <string>12/12/2016</string>
                      </property>
@@ -1215,64 +1478,6 @@ QPushButton:!enabled {
                  </item>
                 </layout>
                </item>
-               <item row="2" column="0">
-                <widget class="QFrame" name="framePreviewTable">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
-                 </property>
-                 <layout class="QGridLayout" name="gridLayoutPreviewTable">
-                  <item row="0" column="3">
-                   <widget class="QLabel" name="label_30">
-                    <property name="text">
-                     <string>Montant</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="label_27">
-                    <property name="text">
-                     <string>Designation</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QLabel" name="label_29">
-                    <property name="text">
-                     <string>Prix Unitaire</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QLabel" name="label_28">
-                    <property name="text">
-                     <string>Quantiite</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
-               </item>
                <item row="0" column="0">
                 <layout class="QHBoxLayout" name="horizontalLayout_22">
                  <item>
@@ -1280,7 +1485,7 @@ QPushButton:!enabled {
                    <item>
                     <widget class="QLabel" name="label_17">
                      <property name="text">
-                      <string>Client</string>
+                      <string>Client:</string>
                      </property>
                     </widget>
                    </item>
@@ -1291,6 +1496,9 @@ QPushButton:!enabled {
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">font-weight: bold;</string>
                      </property>
                      <property name="text">
                       <string>AAA</string>
@@ -1346,6 +1554,9 @@ QPushButton:!enabled {
                        <width>16777215</width>
                        <height>25</height>
                       </size>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">font-weight: bold;</string>
                      </property>
                      <property name="text">
                       <string>000</string>
@@ -1443,7 +1654,9 @@ QPushButton:!enabled {
   <zorder>stackedWidget</zorder>
   <zorder></zorder>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources/resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
