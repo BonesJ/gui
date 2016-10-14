@@ -2,8 +2,8 @@ import os
 import os.path
 import sys
 import sqlite3
-import unicodedata
-from PyQt4 import QtCore, QtGui, QtSql, QtWebKit, uic
+import unicodedata as ucd
+from PyQt4 import QtCore, QtGui, QtSql, uic  # QtWebKit,
 from billQdialog import Ui_Dialog
 from itertools import cycle
 from functools import partial
@@ -13,32 +13,12 @@ import compiled_resources
 # GLOBAL VAR
 DB = "Alpha.db"
 
-STYLES = ['blender_mod_btns.css', 'blank.css', 'blender.css']
-# , 'dark-blue.css', 'dark-green.css','dark-orange.css',
+STYLES = ['blender_mod_btns.css', 'blank.css']
+# , 'blender.css', 'dark-blue.css', 'dark-green.css','dark-orange.css',
 # 'light-blue.css', 'light-green.css','light-orange.css']
 STYLE = cycle(STYLES)
-STRING_CC = ""
 
-# TODO LIST:
 #  max line 1748
-# ------------
-# MAIN WINDOW:
-#
-# JOBS SUB-WINDOW:
-# -create jobsTable DB and connect it to a model
-# -add buttons in QT Designer for:
-# -create btnNewJ and connect new_job() to display Vbox of mulitple QLineEdit
-# -create btnEditB and connect edit_brief() to display Vbox of single QTextEdit
-# -create btnModif and connect to modifications() to display a window w/
-#                                   QLineEdit , Checkbox and 2 btns add and del
-#
-# BILLS SUB-WINDOW:
-# -create billsTable DB and connect it to a model
-# -add buttons in QT Designer for:
-# create bill in database
-# add Checkbox for ".pdf" ".docx" "Print"
-# add button mail to
-# ------------
 
 
 class MyWindow(QtGui.QMainWindow):
@@ -131,8 +111,7 @@ class MyWindow(QtGui.QMainWindow):
                     # print "unecoded", p
                     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-                    p = unicodedata.normalize('NFKD',
-                                              p[0]).encode('ascii', 'ignore')
+                    p = ucd.normalize('NFKD', p[0]).encode('ascii', 'ignore')
                     # # UNCOMMENT SECTION FOR DEBUGGING /START/
                     # print "encoded" , p
                     # # UNCOMMENT SECTION FOR DEBUGGING /END/
@@ -169,8 +148,8 @@ class MyWindow(QtGui.QMainWindow):
             # print "\n"
             # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-        def job_bill_btnstate(b, combo):
-            
+        def job_bill_btnstate(b, combo, group=None):
+
             print "button: ", b.text()
             combo.setEnabled(True)
             combo.setMinimumWidth(150)
@@ -182,13 +161,10 @@ class MyWindow(QtGui.QMainWindow):
                 if b.isChecked():
                     # print b.text() + " is selected"
                     update_combo_from_db(combo=combo,
-                                         column="Code_Client",
-                                         table="client")
+                                         column="Code_Client", table="client")
 
-                    args = partial(update_combo_from_db,
-                                   combo=combo,
-                                   column="Code_Client",
-                                   table="client")
+                    args = partial(update_combo_from_db, combo=combo,
+                                   column="Code_Client", table="client")
                     combo.highlighted.connect(args)
                 else:
                     # print b.text() + " is deselected"
@@ -219,8 +195,12 @@ class MyWindow(QtGui.QMainWindow):
                 combo.setMinimumWidth(0)
                 combo.setMaximumWidth(0)
                 combo.setEnabled(False)
-                get_jobs(self.comboBoxClients, self.jobsTable,
-                         self.model2, showall=True)
+                if group == "jobs":
+                    get_jobs(self.comboBoxClients, self.jobsTable,
+                             self.model2, showall=True)
+                elif group == "bills":
+                    get_bills(self.comboBoxBills, self.billsTable,
+                             self.model3, "confirmed", showall=True)
                 print "Will print all and disable combobox"
 
         def update_combo_client_for_bills():
@@ -330,9 +310,12 @@ class MyWindow(QtGui.QMainWindow):
                     self.contents.setText(data)
 
     # ===============================================APPLICATION INITIALISATION
+
+        # In here configure applicationwide settings(theme, dock, menubar etc.)
+
         # # load ui
         uic.loadUi('kiwi_UI.ui', self)
-        a = change_theme()
+        change_theme()
 
         # close dock widget by default
         self.dockWidget.close()
@@ -344,14 +327,10 @@ class MyWindow(QtGui.QMainWindow):
 
     # =============================================================FACTURES TAB
 
-        # In here configure applicationwide settings(models, theme, dock etc.)
-
         self.model = model
         self.model2 = model2
         self.model3 = model3
 
-
-        
         init_tree_view(self.treeView)
 
         # # disable  Bills and Jobs buttons as Default
@@ -363,7 +342,6 @@ class MyWindow(QtGui.QMainWindow):
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         # Clients groupbox Managment
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
         # ========================================================Buttons Setup
         self.btnNewC.clicked.connect(new_client)
         self.btnEditC.clicked.connect(edit_client)
@@ -386,7 +364,6 @@ class MyWindow(QtGui.QMainWindow):
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         # Jobs groupbox Managment
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
         # ========================================================Buttons Setup
         # Blue Push buttons
         self.btnNewJ.clicked.connect(new_job)
@@ -395,9 +372,11 @@ class MyWindow(QtGui.QMainWindow):
 
         # Radio buttons
         JClients = partial(job_bill_btnstate, b=self.radioButtonJClients,
-                                              combo=self.comboBoxClients)
+                                              combo=self.comboBoxClients,
+                                              group="jobs")
         JAll = partial(job_bill_btnstate, b=self.radioButtonBAll,
-                                          combo=self.comboBoxClients)
+                                          combo=self.comboBoxClients,
+                                          group="jobs")
 
         self.radioButtonJClients.toggled.connect(JClients)  # Args too long...
         self.radioButtonJAll.toggled.connect(JAll)
@@ -406,26 +385,30 @@ class MyWindow(QtGui.QMainWindow):
         self.comboBoxClients.setMinimumWidth(0)  # initially hide ComboBoxe
         self.comboBoxClients.setMaximumWidth(0)
         self.comboBoxClients.currentIndexChanged.connect(combo_jobs_status)
-        # self.comboBoxClients.highlighted.connect(update_combo_client_for_jobs)
         self.comboBoxClients.activated.connect(get_jobs_wrapper)
+
+        # ==========================================================Table Setup
+        #  Enter code here...
 
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         # Bills groupbox Managment
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
         # ========================================================Buttons Setup
         # Blue Push buttons
         self.btnNewBill.clicked.connect(new_bill_input_wrapper)
 
         # Radio buttons
         BClients = partial(job_bill_btnstate, b=self.radioButtonBClients,
-                                              combo=self.comboBoxBills)
+                                              combo=self.comboBoxBills,
+                                              group="bills")
 
         BJobs = partial(job_bill_btnstate, b=self.radioButtonBJobs,
-                                           combo=self.comboBoxBills)
+                                           combo=self.comboBoxBills,
+                                           group="bills")
 
         BAll = partial(job_bill_btnstate, b=self.radioButtonBAll,
-                                          combo=self.comboBoxBills)
+                                          combo=self.comboBoxBills,
+                                          group="bills")
 
         self.radioButtonBClients.toggled.connect(BClients)  # Args too long...
         self.radioButtonBJobs.toggled.connect(BJobs)
@@ -434,12 +417,20 @@ class MyWindow(QtGui.QMainWindow):
         # View selection ComboBox
         self.comboBoxBills.setMinimumWidth(0)  # initially hide ComboBoxe
         self.comboBoxBills.setMaximumWidth(0)
-        self.comboBoxEmails.activated.connect(combo_emails_status)
+        # URGENT BELOW
+        args = partial(get_bills, self.comboBoxBills, self.billsTable,
+                       self.model3, "confirmed")
+        self.comboBoxBills.activated.connect(args)
+
         # self.comboBoxEmails.currentIndexChanged.connect()  # NYI, soon will
         # self.comboBoxEmails.highlighted.connect()  # NYI, soon will
 
         self.leCustomEmail.setMinimumWidth(0)  # initially hide LineEdit
         self.leCustomEmail.setMaximumWidth(0)
+        self.comboBoxEmails.activated.connect(combo_emails_status)
+
+        # ==========================================================Table Setup
+        # Enter code here
 
     # =============================================================CHARGES TAB
     # Add code here...
@@ -469,6 +460,7 @@ class MyModel(QtSql.QSqlTableModel):
         self.select()
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
+        """Center align data in QTableview."""
         # self.tab = tab
         # print "table:", tab
         # cols_to_center_align
@@ -484,7 +476,7 @@ def set_style(widget):
     global STYLES
     global STYLE
     for i in range((len(STYLES) - 1)):
-        a = STYLE.next()
+        STYLE.next()
 
     css = QtCore.QFile(os.path.join('themes', STYLE.next()))
     css.open(QtCore.QIODevice.ReadOnly)
@@ -721,26 +713,44 @@ def make_db():
         Subtotal VARCHAR,
         Invoice_id INTEGER,
         FOREIGN KEY (invoice_id) REFERENCES bill (key)
-        );""")    
+        );""")
 
-    invoice_data = [("Couverture Evenement", "15-10-2016", "15-10-2016", "Suivi Evenement Bingo", "1", "500000", "500000", 1),
-                     ("Shooting Photo", "15-10-2016", "15-10-2016", "Photoshoot model", "1", "500000", "500000", 1  ),
-                     ("Shooting Video", "15-10-2016", "15-10-2016", "Video dans le Holi DZ", "1", "0", "0", 1  ),
-                     ("3D Conception (Stand)", "15-10-2016", "15-10-2016", "STAND ATPA", "1", "1500000", "1500000", 1  ),
-                     ("Shooting Photo", "15-10-2016", "15-10-2016", "Photoshoot model", "1", "500000", "500000", 2  ),
-                     ("Shooting Video", "15-10-2016", "15-10-2016", "Video dans le Holi DZ", "1", "0", "0", 2  ),
-                     ("3D Conception (Stand)", "15-10-2016", "15-10-2016", "STAND ATPA", "1", "1500000", "1500000", 2  ),
-                     ("Shooting Photo", "15-10-2016", "15-10-2016", "Photoshoot model", "1", "500000", "500000", 3  ),
-                     ("Shooting Video", "15-10-2016", "15-10-2016", "Video dans le Holi DZ", "1", "0", "0", 3  ),
-                     ("3D Conception (Stand)", "15-10-2016", "15-10-2016", "STAND ATPA", "1", "1500000", "1500000", 4  ),]
+    invoice_data = [("Couverture Evenement", "15-10-2016", "15-10-2016",
+                     "Suivi Evenement Bingo", "1", "500000", "500000", 1),
+
+                    ("Shooting Photo", "15-10-2016", "15-10-2016",
+                     "Photoshoot model", "1", "500000", "500000", 1),
+
+                    ("Shooting Video", "15-10-2016", "15-10-2016",
+                     "Video dans le Holi DZ", "1", "0", "0", 1),
+
+                    ("3D Conception (Stand)", "15-10-2016", "15-10-2016",
+                     "STAND ATPA", "1", "1500000", "1500000", 1),
+
+                    ("Shooting Photo", "15-10-2016", "15-10-2016",
+                     "Photoshoot model", "1", "500000", "500000", 2),
+
+                    ("Shooting Video", "15-10-2016", "15-10-2016",
+                     "Video dans le Holi DZ", "1", "0", "0", 2),
+
+                    ("3D Conception (Stand)", "15-10-2016", "15-10-2016",
+                     "STAND ATPA", "1", "1500000", "1500000", 2),
+
+                    ("Shooting Photo", "15-10-2016", "15-10-2016",
+                     "Photoshoot model", "1", "500000", "500000", 3),
+
+                    ("Shooting Video", "15-10-2016", "15-10-2016",
+                     "Video dans le Holi DZ", "1", "0", "0", 3),
+
+                    ("3D Conception (Stand)", "15-10-2016", "15-10-2016",
+                     "STAND ATPA", "1", "1500000", "1500000", 4)]
 
     cursor.executemany("""
         INSERT INTO confirmed ("key","Category", "Start_Date", "End_Date",
-                               "Description", "Quantity", "Unit_Price", 
+                               "Description", "Quantity", "Unit_Price",
                                "Subtotal")
         VALUES(NULL,?,?,?,?,?,?,?)""", invoice_data)
     connection.commit()
-    
 
     connection.close()
 
@@ -763,6 +773,7 @@ def del_selected(tabview, model, table=None):
     msg.setStandardButtons(QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
     set_style(msg)
     result = msg.exec_()
+
     if result == QtGui.QMessageBox.Ok:
         if table == "job":
             # remove orders taoble sql and update
@@ -774,18 +785,24 @@ def del_selected(tabview, model, table=None):
             id_us = str(tabview.model().data(index).toString())
             print("code : " + id_us)
         print 'Yes.'
+
         cid = str(id_us[4])
         jid = str(id_us[8])
+
         print "cid: ", cid
         print "jid: ", jid
         # Delete link from orders table
         connection = sqlite3.connect(DB)
         cursor = connection.cursor()
         # id_us =  "\"" + id_us + "\""
-        # cursor.execute("DELETE FROM orders WHERE Code_Job = '%s';" % id_us.strip())
-        cursor.execute("""DELETE FROM orders
-                          WHERE "client_id" = '%s' AND "job_id" = '%s' """ % (cid, jid))
+        # cursor.execute("DELETE FROM orders WHERE Code_Job = '%s';"
+        #                % (id_us.strip()))
+
+        cursor.execute("""
+                DELETE FROM orders
+                WHERE "client_id" = '%s' AND "job_id" = '%s' """ % (cid, jid))
         connection.commit()
+
         cursor.execute("""SELECT * FROM orders""")
         result_orders = cursor.fetchall()
         connection.close()
@@ -811,7 +828,7 @@ def update_combo_from_db(combo, column, table):
 
     Rewritten to take following arguments:
     `ComboBox`, `ColumnName`, `Table` in order to fill ComboBox
-    with rows from `ColumnName` in `Table`. 
+    with rows from `ColumnName` in `Table`.
 
 
     """
@@ -829,8 +846,11 @@ def update_combo_from_db(combo, column, table):
     # print "result all:", result_all
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-    cursor.execute("""SELECT DISTINCT "{col}" FROM "{tab}" """.format(col=column, tab=table))
+    cursor.execute("""
+        SELECT DISTINCT "{col}" FROM "{tab}" """.format(col=column, tab=table))
+
     result_key = cursor.fetchall()
+
     connection.close()
 
     # UNCOMMENT SECTION FOR DEBUGGING /START/
@@ -844,10 +864,9 @@ def update_combo_from_db(combo, column, table):
             # print "unecoded", p
             # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-            p = unicodedata.normalize('NFKD',
-                                      p[0]).encode('ascii', 'ignore')
+            p = ucd.normalize('NFKD', p[0]).encode('ascii', 'ignore')
             # UNCOMMENT SECTION FOR DEBUGGING /START/
-            print "encoded" , p
+            print "encoded", p
             # UNCOMMENT SECTION FOR DEBUGGING /END/
         else:
             # # UNCOMMENT SECTION FOR DEBUGGING /START/
@@ -883,9 +902,8 @@ def update_combo_from_db(combo, column, table):
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
 
-def input_window(
-    tab=None, model=None, combo=None, cols_to_fetch=None,
-    fields=None, tabview=None, mode=None):
+def input_window(tab=None, model=None, combo=None, mode=None,
+    fields=None, tabview=None, cols_to_fetch=None):
     """Create modal dialog w/ len(fields) rows of QPushButton & QLineEdit pairs.
 
     Args:
@@ -904,14 +922,6 @@ def input_window(
     def get_text_input(var=None):
         text, ok = QtGui.QInputDialog.getText(
             var, 'Text Input Dialog', 'Enter Information:')
-        if ok:
-            var.setText(str(text))
-
-    def get_text_input(var=None):
-
-        text, ok = QtGui.QInputDialog.getText(
-            var, 'Text Input Dialog', 'Enter Information:')
-
         if ok:
             var.setText(str(text))
 
@@ -1012,7 +1022,7 @@ def input_window(
             # end of update cc
             connection.commit()
             connection.close()
-        #######################################################################
+            ###################################################################
 
         elif tab == "job":
             ###################################################################
@@ -1239,7 +1249,7 @@ def input_window(
     win.exec_()
 
 
-def get_jobs(combo, table, model2, showall=None):
+def get_jobs(combo, tab_view, model2, showall=None):
     """Fetch data from ComboBox & display corresponding rows in QTableView.
 
     Thia function will show only jobs of selected client by hiding all other
@@ -1282,31 +1292,31 @@ def get_jobs(combo, table, model2, showall=None):
     # code here to take p and fetch all row ids from
     # orders table to display relevant rows from jobs table
     # load db into tableJobs
-    table.setModel(model2)
-    table.setSortingEnabled(False)
-    table.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+    tab_view.setModel(model2)
+    tab_view.setSortingEnabled(False)
+    tab_view.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
     # trick to auto resize columns
-    table.setVisible(False)
-    table.resizeColumnsToContents()
-    table.resizeRowsToContents()
-    hh = table.horizontalHeader()
+    tab_view.setVisible(False)
+    tab_view.resizeColumnsToContents()
+    tab_view.resizeRowsToContents()
+    hh = tab_view.horizontalHeader()
     hh.setStretchLastSection(True)
-    table.setVisible(True)
-    table.setShowGrid(False)
-    # table.setSortingEnabled(True)
-    table.model().layoutChanged.emit()
+    tab_view.setVisible(True)
+    tab_view.setShowGrid(False)
+    # tab_view.setSortingEnabled(True)
+    tab_view.model().layoutChanged.emit()
     count = model2.rowCount()
     # print "count: ", count
     # print "client selected:", selected_item[0]
     model2.select()
     if selected_item[0] == m:
         for i in range(count):
-            table.hideRow(i)
-            # table.setColumnWidth ( int column, int width)
+            tab_view.hideRow(i)
+            # tab_view.setColumnWidth ( int column, int width)
 
     elif selected_item[0] == n:
         for i in range(count):
-            table.showRow(i)
+            tab_view.showRow(i)
     else:
         # Explained in words: For each i, v in a enumerated list of L
         # (that makes i the element's position in the enumerated list
@@ -1319,10 +1329,10 @@ def get_jobs(combo, table, model2, showall=None):
             1] == int(selected_item[0])]
         # print "list of jobs keys linked to client :", tup2
         for i in range(count):
-            table.hideRow(i)
+            tab_view.hideRow(i)
         for i in tup2:
-            table.showRow(i)
-        table.model().layoutChanged.emit()
+            tab_view.showRow(i)
+        tab_view.model().layoutChanged.emit()
         # # UNCOMMENT SECTION FOR DEBUGGING /START/
         # print "Client<", selected_item[0], ">selected"
         # print "END OF METHOD 'get_jobs'... \n"
@@ -1331,9 +1341,107 @@ def get_jobs(combo, table, model2, showall=None):
         # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
 
+def get_bills(combo, tab_view, model3, table, showall=None):
+    """Fetch data from ComboBox & display corresponding rows in QTableView.
+
+    Thia function will show only bills of selected client or selected job
+    by hiding all other rows than the ones linked by `confirmed` table.
+    """
+    # get items from client db
+    # # UNCOMMENT SECTION FOR DEBUGGING /START/
+    # print "\n"
+    # print "-" * 80
+    # print "START METHOD 'get_jobs'... \n"
+    # # UNCOMMENT SECTION FOR DEBUGGING /END/
+    connection = sqlite3.connect(DB)
+    cursor = connection.cursor()
+    cursor.execute("""SELECT * FROM "{tab}" """.format(tab=table))
+    result_orders = cursor.fetchall()
+    connection.close()
+    # # UNCOMMENT SECTION FOR DEBUGGING /START/
+    print "result %s:" % table
+    for r in result_orders:
+        print r
+    # # UNCOMMENT SECTION FOR DEBUGGING /END/
+    # cursor.execute("""SELECT DISTINCT "Code_Client" FROM client""")
+    # result_key = cursor.fetchall()
+    # for r in result_key:
+    #     print "result:", r
+    if showall is True:
+        selected_item = "<View All>"
+    else:
+        selected_item = [str(combo.currentText())]
+
+    # elif showall is False:
+    #     selected_item = "<Select Client>"
+
+    print "selected_item[0]= ", selected_item[0]
+
+    m = "<Select Client>"
+    n = "<View All>"
+    o = "<Select Job>"
+
+    # print "Condition input != <Select Clients> evaluates:", selected_item[0]
+    # != m
+
+    # code here to take p and fetch all row ids from
+    # orders table to display relevant rows from jobs table
+    # load db into tableJobs
+    tab_view.setModel(model3)
+    tab_view.setSortingEnabled(False)
+    tab_view.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+    # trick to auto resize columns
+    tab_view.setVisible(False)
+    tab_view.resizeColumnsToContents()
+    tab_view.resizeRowsToContents()
+    hh = tab_view.horizontalHeader()
+    hh.setStretchLastSection(True)
+    tab_view.setVisible(True)
+    tab_view.setShowGrid(False)
+    # tab_view.setSortingEnabled(True)
+    tab_view.model().layoutChanged.emit()
+    count = model3.rowCount()
+    # print "count: ", count
+    # print "client selected:", selected_item[0]
+    model3.select()
+    if selected_item[0] == (m or o):
+        for i in range(count):
+            tab_view.hideRow(i)
+            # tab_view.setColumnWidth ( int column, int width)
+
+    elif selected_item[0] == n:
+        for i in range(count):
+            tab_view.showRow(i)
+    else:
+        # Explained in words: For each i, v in a enumerated list of L
+        # (that makes i the element's position in the enumerated list
+        # and v the original tuple) check if the tuple's first element
+        # is 53, if so, append the result of the code before'for' to a
+        # newly created list, here: i. It could also be my_function(i, v)
+        # or yet another list comprehension. Since your list of tuples only has
+        # one tuple with 53 as first value, you will get a list with one elemt.
+        tup2 = [i for i, v in enumerate(result_orders) if v[
+            1] == int(selected_item[0])]
+        print "list of jobs keys linked to client :", tup2
+        for i in range(count):
+            tab_view.hideRow(i)
+        for i in tup2:
+            tab_view.showRow(i)
+        tab_view.model().layoutChanged.emit()
+        # # UNCOMMENT SECTION FOR DEBUGGING /START/
+        # print "Client<", selected_item[0], ">selected"
+        # print "END OF METHOD 'get_jobs'... \n"
+        # print "-" * 80
+        # print "\n"
+        # # UNCOMMENT SECTION FOR DEBUGGING /END/
+
 
 def new_bill_input_dialog(combo, table):
+    """Launch billQdialog.py and retrieve billing info.
 
+    This function will show a dialog for the user to input invoice data
+    into a GUI and be able to store it in a database.
+    """
     def cancel():
         win.close()
 
@@ -1386,82 +1494,86 @@ def new_bill_input_dialog(combo, table):
                      }
         if item != m:
             # call method to update db
-            add_to_db_v2(table="orders", d=orders_dict, close_win=win)
+            add_to_db_v2(table="orders", d=bill_dict, close_win=win)
         table.model().select()
 
     def txtchanged(text, k=None):
         # print "%s: " % (k.objectName())
-        input_fields_to_data[k] = text
-        input_fields_to_data_str[str(k.objectName())] = text
-        
+        in_fields_2_data[k] = text
+        in_fields_2_data_str[str(k.objectName())] = text
+
         print "raw %r:" % str(k.objectName())
-        
-        input_fields_to_pLabels[k].setText(input_fields_to_data_str[str(k.objectName())])
+
+        in_fields_2_pLbls[k].setText(in_fields_2_data_str[str(k.objectName())])
 
         # if k.objectName() == u'leClientName':
-        #     win.labelClient.setText(input_fields_to_data_str[str(k.objectName())])
+        #     win.labelClient.setText(in_fields_2_data_str[str(k.objectName())])
         #     print "!!!entered!!!"
-        
+
         # print "k.objectName() is type", type(k.objectName())
-        # print "saved data: ", input_fields_to_data[k]
+        # print "saved data: ", in_fields_2_data[k]
 
     def datechanged(date, k=None):
-        input_fields_to_data[k] = date
-        input_fields_to_data_str[str(k.objectName())] = str(date.toPyDate())
+        in_fields_2_data[k] = date
+        in_fields_2_data_str[str(k.objectName())] = str(date.toPyDate())
         print "raw %r:" % str(k.objectName())
         print "k.objectName() is type", type(k.objectName())
-        input_fields_to_pLabels[k].setText(str(date.toPyDate()))
+        in_fields_2_pLbls[k].setText(str(date.toPyDate()))
 
     def numchanged(num, k=None):
-        input_fields_to_data[k] = num
-        input_fields_to_data_str[str(k.objectName())] = num
-        input_fields_to_pLabels[k].setText(input_fields_to_data_str[str(k.objectName())])
+        in_fields_2_data[k] = num
+        in_fields_2_data_str[str(k.objectName())] = num
+        in_fields_2_pLbls[k].setText(in_fields_2_data_str[str(k.objectName())])
 
     def cb_selectchanged(index, k=None):
         print "index of cb: ", index, "value: ", k.currentText()
-        input_fields_to_data[k] = k.currentText()
-        input_fields_to_data_str[str(k.objectName())] = str(input_fields_to_data[k])
-        input_fields_to_pLabels[k].setText(input_fields_to_data_str[str(k.objectName())])
+        in_fields_2_data[k] = k.currentText()
+        in_fields_2_data_str[str(k.objectName())] = str(in_fields_2_data[k])
+        in_fields_2_pLbls[k].setText(in_fields_2_data_str[str(k.objectName())])
 
     def preview_invoice_tex():
         print
         print "Invoice Preview:"
         print "=" * 80
         print
-        print "ObjectName dict{}", len(input_fields_to_data_str), "item(s) long."
-        for key in input_fields_to_data_str:
-            print key, ":", input_fields_to_data_str[key]
+        print "ObjectName dict{}", len(in_fields_2_data_str), "item(s) long."
+        for key in in_fields_2_data_str:
+            print key, ":", in_fields_2_data_str[key]
         print "END OF Invoice Preview:"
         print "=" * 80
-        generate_latex()
+
+        generate_latex(inv_data=in_fields_2_data_str, doc="invoice")
+
         # import webbrowser
         # webbrowser.open_new(r'file:///C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/.texbuild/jinja2build/jinja2-testOut.pdf')
-        
+
         import subprocess
-        # pdf = "C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/.texbuild/jinja2build/jinja2-testOut.pdf"
+        # first = "C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/"
+        # second = ".texbuild/jinja2build/jinja2-testOut.pdf"
+        # pdf = first + second
         rel_pdf = ".texbuild/jinja2build/jinja2-testOut.pdf"
         pdf = os.path.join(os.sep, os.path.dirname(__file__), rel_pdf)
         acrobatPath = r'SumatraPDF/SumatraPDF.exe'
         subprocess.Popen("%s %s" % (acrobatPath, pdf))
 
     def preview_invoice_docx():
-        print "WORD GENERATION NOT IMPLEMENTED"
+        print "WORD GENERATION NOT YET IMPLEMENTED !"
 
     def btnstate(b):
         if b.text() == "LaTeX":
             if b.isChecked():
-                print b.text()+" is selected"
+                print b.text() + " is selected"
                 win.btnGenPreview.clicked.connect(preview_invoice_tex)
             else:
-                print b.text()+" is deselected"
+                print b.text() + " is deselected"
                 win.btnGenPreview.clicked.disconnect()
 
         if b.text() == "MS Word":
             if b.isChecked():
-                print b.text()+" is selected"
+                print b.text() + " is selected"
                 win.btnGenPreview.clicked.connect(preview_invoice_docx)
             else:
-                print b.text()+" is deselected"
+                print b.text() + " is deselected"
                 win.btnGenPreview.clicked.disconnect()
 
     try:
@@ -1473,10 +1585,12 @@ def new_bill_input_dialog(combo, table):
         _encoding = QtGui.QApplication.UnicodeUTF8
 
         def _translate(context, text, disambig):
-            return QtGui.QApplication.translate(context, text, disambig, _encoding)
+            return QtGui.QApplication.translate(
+                context, text, disambig, _encoding)
     except AttributeError:
         def _translate(context, text, disambig):
-            return QtGui.QApplication.translate(context, text, disambig)
+            return QtGui.QApplication.translate(
+                context, text, disambig)
 
     win = Ui_Dialog()
     dialog = QtGui.QDialog()
@@ -1489,33 +1603,35 @@ def new_bill_input_dialog(combo, table):
     input_keys = [win.leNumBill, win.leCity, win.leClientName,
                   win.leProduct, win.deCreationDate, win.cbBillCat,
                   win.deItemDate, win.sbItemQty, win.leUnitPrice]
-
-    preview_labels = [win.labelClient, win.labelCodeFac, win.labelProduit,
-                      win.labelDate]
     # input_keys   = [win.leNumBill, win.leCity, win.leClientName]
 
-    input_fields_to_data = {key: '' for key in input_keys}
-    input_fields_to_data_str = {str(key.objectName()): '<>' for key in input_keys}
-    input_fields_to_pLabels = {win.leClientName : win.labelClient,
-                               win.leNumBill : win.labelCodeFac,
-                               win.leProduct : win.labelProduit,
-                               win.deCreationDate : win.labelDate}
+    # implement dict mapping of line below
+    # preview_labels = [win.labelClient, win.labelCodeFac, win.labelProduit,
+    #                   win.labelDate]
+    # input_keys   = [win.leNumBill, win.leCity, win.leClientName]
+
+    in_fields_2_data = {key: '' for key in input_keys}
+    in_fields_2_data_str = {str(key.objectName()): '<>' for key in input_keys}
+    in_fields_2_pLbls = {win.leClientName: win.labelClient,
+                         win.leNumBill: win.labelCodeFac,
+                         win.leProduct: win.labelProduit,
+                         win.deCreationDate: win.labelDate}
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
     print "-" * 60
     print "Before Ok:"
-    print "Object dict{}", len(input_fields_to_data), "item(s) long: "
-    for key in input_fields_to_data:
-        print key, ":", input_fields_to_data[key]
+    print "Object dict{}", len(in_fields_2_data), "item(s) long: "
+    for key in in_fields_2_data:
+        print key, ":", in_fields_2_data[key]
 
     print
 
-    print "ObjectName dict{}", len(input_fields_to_data_str), "item(s) long: "
-    for key in input_fields_to_data_str:
-        print key, ":", input_fields_to_data_str[key]
+    print "ObjectName dict{}", len(in_fields_2_data_str), "item(s) long: "
+    for key in in_fields_2_data_str:
+        print key, ":", in_fields_2_data_str[key]
     print "-" * 60
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-    for key in input_fields_to_data:
+    for key in in_fields_2_data:
         # Loop over elements in dict and according to their class
         # (QLineEdit, QDateEdite, QSpinBox etc.) extract data and
         # store in corresponding value of dict
@@ -1523,15 +1639,13 @@ def new_bill_input_dialog(combo, table):
         # # UNCOMMENT SECTION FOR DEBUGGING /START/
         # print "key : %s" % key
         # print "key.objectName(): ", str(key.objectName())
-        # print "value: ", input_fields_to_data[key]
+        # print "value: ", in_fields_2_data[key]
         # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
         if str(key.objectName()).startswith('le'):
             key.textChanged.connect(partial(txtchanged, k=key))
 
         elif str(key.objectName()).startswith('de'):
-            # input_fields_to_data[key] = key.date()
-            # input_fields_to_data_str[key.objectName()] = input_fields_to_data[key].toPyDate()
             key.dateChanged.connect(partial(datechanged, k=key))
 
         elif str(key.objectName()).startswith('sb'):
@@ -1546,19 +1660,14 @@ def new_bill_input_dialog(combo, table):
     win.rbLatex.toggled.connect(partial(btnstate, b=win.rbLatex))
     win.rbWord.toggled.connect(partial(btnstate, b=win.rbWord))
 
-    
-    
     result = dialog.exec_()
 
+    # mapping variables from dict to labels as user types to show preview...
+    win.labelClient.setText(in_fields_2_data_str[u'leClientName'])
+    win.labelCodeFac.setText(in_fields_2_data_str["leNumBill"])
+    win.labelProduit.setText(in_fields_2_data_str["leProduct"])
+    win.labelDate.setText(str(in_fields_2_data_str["deCreationDate"]))
 
-    # mapping variables from dict to labels
-
-    win.labelClient.setText(input_fields_to_data_str[u'leClientName'])
-    win.labelCodeFac.setText(input_fields_to_data_str["leNumBill"])
-    win.labelProduit.setText(input_fields_to_data_str["leProduct"])
-    win.labelDate.setText(str(input_fields_to_data_str["deCreationDate"]))
-    
-    
     print "-" * 80
     print "Bill dialog closed with a ",
 
@@ -1572,29 +1681,40 @@ def new_bill_input_dialog(combo, table):
     print "-" * 60
     print "After Ok:"
     print "Pressed `Ok`"
-    print "Object dict{}", len(input_fields_to_data), "item(s) long."
-    for key in input_fields_to_data:
-        print key, ":", input_fields_to_data[key]
+    print "Object dict{}", len(in_fields_2_data), "item(s) long."
+    for key in in_fields_2_data:
+        print key, ":", in_fields_2_data[key]
 
     print
 
-    print "ObjectName dict{}", len(input_fields_to_data_str), "item(s) long."
-    for key in input_fields_to_data_str:
-        print key, ":", input_fields_to_data_str[key]
+    print "ObjectName dict{}", len(in_fields_2_data_str), "item(s) long."
+    for key in in_fields_2_data_str:
+        print key, ":", in_fields_2_data_str[key]
     print "-" * 60
     # UNCOMMENT SECTION FOR DEBUGGING /START/
 
     # btnDone.clicked.connect(update_db_wrapper)
     # btnCancel.clicked.connect(cancel)
 
-def generate_latex():
 
+def generate_latex(inv_data=None, doc=None):
+    """GEN Latex document based on args and a template, and jinja2.
+
+    This function will programatically generate latex .tex documents replacing
+    passed Args to display invoices and estimates based on templates.
+    """
     # add arguments to pass...
-    import jinja2    
+    import jinja2
     from jinja2 import Template
     import io
 
-    # function used to split number every 3rd char 
+    print "=" * 80
+    print "inv_data:"
+    for key in inv_data:
+        print key, ":", inv_data[key]
+    print "=" * 80
+
+    # function used to split number every 3rd char
     # and add a comma
     def splitAt(w, n):
         for i in range(0, len(w), n):
@@ -1614,52 +1734,73 @@ def generate_latex():
         loader=jinja2.FileSystemLoader(os.path.abspath('.'))
     )
 
-    # Define variables...
-    project = "./"
+    if doc == "invoice":
+        # Define variables...
+        project = "./"
 
-    build_d = "{}.texbuild/jinja2build/".format(project)
-    out_file = "{}jinja2-testOut".format(build_d)
+        build_d = "{}.texbuild/jinja2build/".format(project)
+        out_fil = "{}jinja2-testOut".format(build_d)
+        template = latex_jinja_env.get_template('kiwi-template-1.tex')
 
-    template = latex_jinja_env.get_template('kiwi-template-1.tex')
-    numfac = 'FAC000-000'
-    client_name = 'ALSTOM ALGERIE'
-    city = 'Alger'
-    date_bill_creation = '14/07/2016'
-    product = 'Reportage Photo Constantine'
-    nap = "Cent Quatre Vingt Sept Mille Deux Cent"
-    category = "Couverture Evenement"
-    qty = "1"
-    unit_price = "160000"
-    total_price = str(int(qty) * int(unit_price))
-    numbers = [unit_price, total_price]
+        # # user inputs hardcoded for testing (to delete afterwards...)
+        # numfac = 'FAC000-000'
+        # client_name = 'ALSTOM ALGERIE'
+        # city = 'Alger'
+        # date_bill_creation = '14/07/2016'
+        # product = 'Reportage Photo Constantine'
+        # nap = "Cent Quatre Vingt Sept Mille Deux Cent"
+        # category = "Couverture Evenement"
+        # qty = "1"
+        unit_price = "160000"
 
-    for idx, val in enumerate(numbers):
-        numbers[idx] = ",".join(splitAt(val, 3))
+        # # user inputs using variables
+        numfac = inv_data["leNumBill"]
+        client_name = inv_data["leClientName"]
+        city = inv_data["leCity"]
+        date_bill_creation = inv_data["deCreationDate"]
+        product = inv_data["leProduct"]
+        nap = "Cent Quatre Vingt Sept Mille Deux Cent"
+        category = "Couverture Evenement"
+        qty = "1"
+        unit_price = "160000"
 
-    # create the build directory if not exisiting
-    if not os.path.exists(build_d):
-        os.makedirs(build_d)
+        total_price = str(int(qty) * int(unit_price))
+        numbers = [unit_price, total_price]
 
-    # print(template.render(section1='Long Form', section2='Short Form'))
-    tex_code = template.render(numfac=numfac,
-                               client_name=client_name,
-                               city=city,
-                               date_bill_creation=date_bill_creation,
-                               nap=nap,
-                               category=category,
-                               qty=qty,
-                               unit_price=numbers[0],
-                               total_price=numbers[1],
-                               product=product)
+        for idx, val in enumerate(numbers):
+            numbers[idx] = ",".join(splitAt(val, 3))
 
-    with io.open(out_file+".tex", "w", encoding='utf8') as f:  # saves tex_code to outpout file
-        f.write(tex_code)
+        # create the build directory if not exisiting
+        if not os.path.exists(build_d):
+            os.makedirs(build_d)
 
-    os.system("pdflatex -output-directory {} {}".format(os.path.realpath(build_d), os.path.realpath(out_file)))    
-    # shutil.copy2(out_file+".pdf", os.path.dirname(os.path.realpath(tex_code)))
+        # print(template.render(section1='Long Form', section2='Short Form'))
+        tex_code = template.render(numfac=numfac,
+                                   client_name=client_name,
+                                   city=city,
+                                   date_bill_creation=date_bill_creation,
+                                   nap=nap,
+                                   category=category,
+                                   qty=qty,
+                                   unit_price=numbers[0],
+                                   total_price=numbers[1],
+                                   product=product)
+        # saves tex_code to outpout file
+        with io.open(out_fil + ".tex", "w", encoding='utf8') as f:
+            f.write(tex_code)
+
+        os.system("pdflatex -output-directory {} {}".format(
+            os.path.realpath(build_d), os.path.realpath(out_fil)))
+        # shutil.copy2(out_fil+".pdf", os.path.dirname(
+        #                                os.path.realpath(tex_code)))
+    elif doc == "estimate":
+        raise NotImplementedError
+    else:
+        print "Arg `%s` is invalid, please use `invoice or `estimate`." % doc
 
 
 def init_tree_view(treeView):
+    """Function to initialise the treeView found in home window."""
     def addItems(parent, elements):
 
         for text, children in elements:
@@ -1715,6 +1856,11 @@ def init_tree_view(treeView):
 
 
 def add_to_db_v2(close_win=None, d=None, table=None):
+    """Updated version of adding to the db using ars.
+
+    The point of refactoring function was to provide a was for all views and
+    dialogs to update database using common args.
+    """
     print "-" * 80
     print "START OF METHOD ADD TO DB V2:"
 
@@ -1760,7 +1906,8 @@ def add_to_db_v2(close_win=None, d=None, table=None):
                 d[k] = "\"" + str(d[k]) + "\""
 
                 print "normal value: ", d[k]
-                cursor.execute("""UPDATE {tn} SET {col} = {data} WHERE key = {r}""".
+                cursor.execute("""
+                    UPDATE {tn} SET {col} = {data} WHERE key = {r}""".
                                format(tn=table, col=k, data=d[k], r=last))
                 print "Added in col:", k, "value :", d[k]
 
@@ -1780,7 +1927,11 @@ def add_to_db_v2(close_win=None, d=None, table=None):
 
 
 def update_db(close_win=None, d=None, table=None, row=None):
+    """Updated version of update to the db using ars.
 
+    The point of refactoring function was to provide a was for all views and
+    dialogs to update database using common args.
+    """
     print "\nEntered update_db(): ----------------------"
     connection = sqlite3.connect(DB)
     cursor = connection.cursor()
@@ -1802,13 +1953,13 @@ def update_db(close_win=None, d=None, table=None, row=None):
 
             print "\n"
 
-            cursor.execute("""UPDATE {tn} SET {col} = {data} WHERE key = {r}""".format(
-                tn=table, col=k, data=d[k], r=row))
+            cursor.execute("""UPDATE {tn} SET {col} = {data} WHERE key = {r}"""
+                           .format(tn=table, col=k, data=d[k], r=row))
         connection.commit()
         connection.close()
 
     else:
-        print " need a table, a row number and a dictonary of columns and data !"
+        print " need a table, a row number and a dict of columns and data !"
 
     # cursor.execute("SELECT * FROM client")
     # result_all = cursor.fetchall()
@@ -1828,7 +1979,8 @@ def update_db(close_win=None, d=None, table=None, row=None):
     #     print "concatenated:", count
 
     #     cursor.execute(
-    #         """UPDATE client SET 'Code_Client' = {s} WHERE 'key' = {k}""" .format(s=count, k=i))
+    #         """UPDATE client SET 'Code_Client' = {s}
+    #            WHERE 'key' = {k}""" .format(s=count, k=i))
 
     # connection.commit()
     # cursor.execute("SELECT * FROM client")
@@ -1841,7 +1993,6 @@ def update_db(close_win=None, d=None, table=None, row=None):
 
     close_win.close()
     print "\nExited update_db(): ----------------------"
-
 
 if __name__ == '__main__':
 
@@ -1866,6 +2017,4 @@ if __name__ == '__main__':
     # app.setStyleSheet('blender_mod_btns.css')
 
     window = MyWindow(model, model2, model3)
-    
-
     sys.exit(app.exec_())

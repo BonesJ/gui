@@ -1016,7 +1016,7 @@ QTabBar::tab:only-one {
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-32</y>
+             <y>0</y>
              <width>790</width>
              <height>506</height>
             </rect>
@@ -1259,6 +1259,9 @@ QPushButton:hover {
                         <property name="text">
                          <string>All</string>
                         </property>
+                        <property name="checked">
+                         <bool>true</bool>
+                        </property>
                        </widget>
                       </item>
                      </layout>
@@ -1276,8 +1279,14 @@ QPushButton:hover {
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>150</width>
+                        <width>0</width>
                         <height>24</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>0</width>
+                        <height>16777215</height>
                        </size>
                       </property>
                       <property name="maxVisibleItems">
@@ -1286,16 +1295,6 @@ QPushButton:hover {
                       <property name="sizeAdjustPolicy">
                        <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
                       </property>
-                      <item>
-                       <property name="text">
-                        <string>&lt;Select Client&gt;</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>&lt;View All&gt;</string>
-                       </property>
-                      </item>
                      </widget>
                     </item>
                     <item>

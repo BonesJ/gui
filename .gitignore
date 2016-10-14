@@ -12,3 +12,9 @@ previous-versions/Alpha-0.1.1.py
 compiled_resources.pyc
 previous-versions/kiwi_UI - Copy.ui
 previous-versions/kiwi_UI.ui
+.gitattributes *.png
+resources/icons/Add User Male Filled.png
+resources/icons/Add User Male.png
+resources/icons/Cancel Filled.png
+resources/icons/*.png
+previous-versions/kiwi_UI_i.ui
