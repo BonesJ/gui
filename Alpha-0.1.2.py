@@ -587,13 +587,13 @@ def make_db():
         UNIQUE ("key"));""")
 
     job_data = [
-        ("J-001-001", "client 1", "descri", "15-06-2015", "17-10-2017", 15, 5),
-        ("J-001-002", "client 1", "descri", "15-06-2015", "17-10-2017", 15, 5),
-        ("J-002-003", "client 2", "descri", "15-06-2015", "17-10-2017", 15, 5),
-        ("J-002-004", "client 2", "descri", "15-06-2015", "17-10-2017", 15, 5),
-        ("J-002-005", "client 2", "descri", "15-06-2015", "17-10-2017", 15, 5),
-        ("J-003-006", "client 3", "descri", "15-06-2015", "17-10-2017", 15, 5),
-        ("J-003-007", "client 3", "descri", "15-06-2015", "17-10-2017", 15, 5),
+        ("J/001/001", "client 1", "descri", "15/06/2015", "17/10/2017", 15, 5),
+        ("J/001/002", "client 1", "descri", "15/06/2015", "17/10/2017", 15, 5),
+        ("J/002/003", "client 2", "descri", "15/06/2015", "17/10/2017", 15, 5),
+        ("J/002/004", "client 2", "descri", "15/06/2015", "17/10/2017", 15, 5),
+        ("J/002/005", "client 2", "descri", "15/06/2015", "17/10/2017", 15, 5),
+        ("J/003/006", "client 3", "descri", "15/06/2015", "17/10/2017", 15, 5),
+        ("J/003/007", "client 3", "descri", "15/06/2015", "17/10/2017", 15, 5),
     ]
     cursor.executemany("""
         INSERT INTO job ("key", "Code_Job","Produit", "Brief", "Date_Debut",
@@ -657,15 +657,15 @@ def make_db():
         );""")
 
     bill_data = [
-        ("FAC001-001", "bill description...", 15000,
+        ("FAC001/001", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
-        ("FAC002-002", "bill description...", 15000,
+        ("FAC002/002", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
-        ("FAC002-003", "bill description...", 15000,
+        ("FAC002/003", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
-        ("FAC003-004", "bill description...", 15000,
+        ("FAC003/004", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
-        ("FAC003-005", "bill description...", 15000,
+        ("FAC003/005", "bill description...", 15000,
             "15/06/2015", "17/10/2017", 50, "Publie"),
     ]
     cursor.executemany("""
@@ -715,41 +715,41 @@ def make_db():
         FOREIGN KEY (invoice_id) REFERENCES bill (key)
         );""")
 
-    invoice_data = [("Couverture Evenement", "15-10-2016", "15-10-2016",
+    invoice_data = [("Couverture Evenement", "15/10/2016", "15/10/2016",
                      "Suivi Evenement Bingo", "1", "500000", "500000", 1),
 
-                    ("Shooting Photo", "15-10-2016", "15-10-2016",
+                    ("Shooting Photo", "15/10/2016", "15/10/2016",
                      "Photoshoot model", "1", "500000", "500000", 1),
 
-                    ("Shooting Video", "15-10-2016", "15-10-2016",
+                    ("Shooting Video", "15/10/2016", "15/10/2016",
                      "Video dans le Holi DZ", "1", "0", "0", 1),
 
-                    ("3D Conception (Stand)", "15-10-2016", "15-10-2016",
+                    ("3D Conception (Stand)", "15/10/2016", "15/10/2016",
                      "STAND ATPA", "1", "1500000", "1500000", 1),
 
-                    ("Shooting Photo", "15-10-2016", "15-10-2016",
+                    ("Shooting Photo", "15/10/2016", "15/10/2016",
                      "Photoshoot model", "1", "500000", "500000", 2),
 
-                    ("Shooting Video", "15-10-2016", "15-10-2016",
+                    ("Shooting Video", "15/10/2016", "15/10/2016",
                      "Video dans le Holi DZ", "1", "0", "0", 2),
 
-                    ("3D Conception (Stand)", "15-10-2016", "15-10-2016",
+                    ("3D Conception (Stand)", "15/10/2016", "15/10/2016",
                      "STAND ATPA", "1", "1500000", "1500000", 2),
 
-                    ("Shooting Photo", "15-10-2016", "15-10-2016",
+                    ("Shooting Photo", "15/10/2016", "15/10/2016",
                      "Photoshoot model", "1", "500000", "500000", 3),
 
-                    ("Shooting Video", "15-10-2016", "15-10-2016",
+                    ("Shooting Video", "15/10/2016", "15/10/2016",
                      "Video dans le Holi DZ", "1", "0", "0", 3),
 
-                    ("3D Conception (Stand)", "15-10-2016", "15-10-2016",
+                    ("3D Conception (Stand)", "15/10/2016", "15/10/2016",
                      "STAND ATPA", "1", "1500000", "1500000", 4)]
 
     cursor.executemany("""
-        INSERT INTO confirmed ("key","Category", "Start_Date", "End_Date",
+        INSERT INTO invoice_items ("key","Category", "Start_Date", "End_Date",
                                "Description", "Quantity", "Unit_Price",
-                               "Subtotal")
-        VALUES(NULL,?,?,?,?,?,?,?)""", invoice_data)
+                               "Subtotal", "Invoice_id")
+        VALUES(NULL,?,?,?,?,?,?,?,?)""", invoice_data)
     connection.commit()
 
     connection.close()
@@ -1531,7 +1531,7 @@ def new_bill_input_dialog(combo, table):
         in_fields_2_data_str[str(k.objectName())] = str(in_fields_2_data[k])
         in_fields_2_pLbls[k].setText(in_fields_2_data_str[str(k.objectName())])
 
-    def preview_invoice_tex():
+    def preview_inv_tex():
         print
         print "Invoice Preview:"
         print "=" * 80
@@ -1542,11 +1542,7 @@ def new_bill_input_dialog(combo, table):
         print "END OF Invoice Preview:"
         print "=" * 80
 
-        generate_latex(inv_data=in_fields_2_data_str, doc="invoice")
-
-        # import webbrowser
-        # webbrowser.open_new(r'file:///C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/.texbuild/jinja2build/jinja2-testOut.pdf')
-
+        generate_latex(inv_data=in_fields_2_data_str, doc="invoice")   
         import subprocess
         # first = "C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/"
         # second = ".texbuild/jinja2build/jinja2-testOut.pdf"
@@ -1557,13 +1553,23 @@ def new_bill_input_dialog(combo, table):
         subprocess.Popen("%s %s" % (acrobatPath, pdf))
 
     def preview_invoice_docx():
-        print "WORD GENERATION NOT YET IMPLEMENTED !"
+        print
+        print "Invoice Preview (passed args):"
+        print "=" * 80
+        print
+        print "ObjectName dict{}", len(in_fields_2_data_str), "item(s) long."
+        for key in in_fields_2_data_str:
+            print key, ":", in_fields_2_data_str[key]
+        print "END OF Invoice Preview (passed args):"
+        print "=" * 80
+
+        generate_docx(inv_data=in_fields_2_data_str, doc="invoice")   
 
     def btnstate(b):
         if b.text() == "LaTeX":
             if b.isChecked():
                 print b.text() + " is selected"
-                win.btnGenPreview.clicked.connect(preview_invoice_tex)
+                win.btnGenPreview.clicked.connect(preview_inv_tex)
             else:
                 print b.text() + " is deselected"
                 win.btnGenPreview.clicked.disconnect()
@@ -1695,6 +1701,62 @@ def new_bill_input_dialog(combo, table):
 
     # btnDone.clicked.connect(update_db_wrapper)
     # btnCancel.clicked.connect(cancel)
+
+
+def generate_docx(inv_data=None, doc=None):
+    """GEN .docx document based on args and a template, and python-docx.
+
+    This function will programatically generate word .docx documents replacing
+    passed Args to display invoices and estimates based on templates.
+    """
+    from docx import Document
+    from docx.shared import Pt
+    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT, WD_TAB_LEADER
+
+    print "=" * 80
+    print "inv_data:"
+    for key in inv_data:
+        print key, ":", inv_data[key]
+    print "=" * 80
+
+    items = {}
+    print "items{}:"
+    for key in inv_data.keys():
+        items[key] = str(inv_data[key])        
+        print "%r: %r" % (key, items[str(key)])
+
+
+    print type(items['leNumBill'])
+    document = Document()
+    p = document.add_paragraph('Facture N: ')
+    p.add_run(items['leNumBill']).bold = True
+    # p.add_run(' and some ')
+    # p.add_run('italic.').italic = True
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    p = document.add_paragraph('Client: ')
+    p.add_run(items['leClientName']).bold = True
+
+    
+    paragraph_format = p.paragraph_format
+    tab_stops = paragraph_format.tab_stops
+    ab_stop = tab_stops.add_tab_stop(Pt(100), WD_TAB_ALIGNMENT.RIGHT)
+    p.add_run('\tAlger le: ')
+    p.add_run(items['deCreationDate']).bold = True
+    
+    p = document.add_paragraph('Produit: ')
+    p.add_run(items['leProduct']).bold = True
+
+    table = document.add_table(rows=1, cols=4)
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = 'Désignation'
+    hdr_cells[1].text = 'Quantité'
+    hdr_cells[2].text = 'Prix'
+    hdr_cells[3].text = 'Montant'
+    document.save('demo.docx')
+
+
+
 
 
 def generate_latex(inv_data=None, doc=None):
