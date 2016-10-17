@@ -19,3 +19,4 @@ resources/icons/Cancel Filled.png
 resources/icons/*.png
 previous-versions/kiwi_UI_i.ui
 *.docx
+treeselector_.pyc

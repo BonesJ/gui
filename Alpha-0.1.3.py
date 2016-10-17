@@ -8,6 +8,8 @@ from billQdialog import Ui_Dialog
 from itertools import cycle
 from functools import partial
 import compiled_resources
+import treeselector_
+import progress
 # from kiwi_UI import Ui_MainWindow
 
 # GLOBAL VAR
@@ -29,7 +31,6 @@ class MyWindow(QtGui.QMainWindow):
     structure so that it makes more sense.
     Notes and abbreviations:
     WF      Wrapper function
-
     """
 
     def __init__(self, model, model2, model3):
@@ -1129,6 +1130,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     what = "Something went wrong...."
     window_info = "Information Input Window"
 
+
     for k in cols_to_fetch:
         existing_data[k] = ""
     if mode == "edit":
@@ -1204,6 +1206,9 @@ def input_window(tab=None, model=None, combo=None, mode=None,
         code = "---not yet created---"
         what = " Client"
         text += what
+        # i is rwos to offset (number of rows before start putting rows
+        # of buttons and qlineedits, currently == 2 because two labels 
+        i = 2
 
         window_info = "Information Input Window"
     elif (tab == 'job'):
@@ -1211,6 +1216,18 @@ def input_window(tab=None, model=None, combo=None, mode=None,
         code = "---not yet created---"
         what = " Job"
         text += what
+        # i is rwos to offset (number of rows before start putting rows
+        # of buttons and qlineedits, currently == 3 because two labels and a widget
+        #  come before button fields...
+        i = 3
+        reload(treeselector_)
+        tree_selector = treeselector_.Ui_()
+        layout.addWidget(tree_selector, 2, 0, 1, 2)
+        
+
+        # item_widget = progress.Ui_("It works")
+        # layout.addWidget(item_widget, 2, 0, 1, 2)
+        
     else:
         raise NotImplementedError
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
@@ -1224,7 +1241,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     print "input map", input_map
     buttons = {}
     lines = {}
-    i = 2
+
 
     # create buttons
     for key in fields:
@@ -1267,8 +1284,13 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     win.setLayout(layout)
     win.setWindowTitle(window_info)
     set_style(win)
-    height = 80 + 50 * len(fields)
-    win.setFixedHeight(height)
+    if (tab == 'client'):
+        height = 80 + 50 * len(fields)
+    elif (tab == 'job'):
+        height = 245 + 50 * len(fields)
+    else:
+        raise NotImplementedError
+    # win.setFixedHeight(height)
     # win.setFixedWidth(400)
     win.exec_()
 

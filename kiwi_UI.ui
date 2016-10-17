@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>840</width>
+    <width>1100</width>
     <height>643</height>
    </rect>
   </property>
@@ -241,7 +241,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>542</width>
+             <width>802</width>
              <height>1011</height>
             </rect>
            </property>
@@ -1017,7 +1017,7 @@ QTabBar::tab:only-one {
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>790</width>
+             <width>802</width>
              <height>506</height>
             </rect>
            </property>
@@ -2735,7 +2735,7 @@ background-color: rgba(227, 238, 238,0);
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>840</width>
+     <width>1100</width>
      <height>21</height>
     </rect>
    </property>

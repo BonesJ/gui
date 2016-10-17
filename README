@@ -29,6 +29,7 @@ estimates, invoices and tax returns.
 """
 
 TODO:    
+    -VHP|Implement QTreeSelector ASAP.
     -VLP|Review GUI and theme to make it more appealing as now it isn't any good.
         >>  Currently in a dark theme w/ blue accents 2/2 said OK, needs tidying
     -VHP|Implement bill function  and pdf generation.
