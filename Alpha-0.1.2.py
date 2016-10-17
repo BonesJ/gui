@@ -96,13 +96,14 @@ class MyWindow(QtGui.QMainWindow):
             # print "result all:", result_all
             # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-            cursor.execute("""SELECT DISTINCT "Code_Client" FROM client""")
+            cursor.execute("""SELECT DISTINCT "Code Client" FROM client""")
             result_key = cursor.fetchall()
             connection.close()
 
-            # # UNCOMMENT SECTION FOR DEBUGGING /START/
-            # print "result_key:", result_key
-            # # UNCOMMENT SECTION FOR DEBUGGING /END/
+            # UNCOMMENT SECTION FOR DEBUGGING /START/
+            print "result_key:", result_key
+
+            # UNCOMMENT SECTION FOR DEBUGGING /END/
 
             for p in result_key:
                 p = list(p)
@@ -161,10 +162,10 @@ class MyWindow(QtGui.QMainWindow):
                 if b.isChecked():
                     # print b.text() + " is selected"
                     update_combo_from_db(combo=combo,
-                                         column="Code_Client", table="client")
+                                         column="Code Client", table="client")
 
                     args = partial(update_combo_from_db, combo=combo,
-                                   column="Code_Client", table="client")
+                                   column="Code Client", table="client")
                     combo.highlighted.connect(args)
                 else:
                     # print b.text() + " is deselected"
@@ -179,11 +180,11 @@ class MyWindow(QtGui.QMainWindow):
                 if b.isChecked():
                     print b.text() + " is selected"
                     update_combo_from_db(combo=combo,
-                                         column="Code_Job",
+                                         column="Code Job",
                                          table="job")
                     args = partial(update_combo_from_db,
                                    combo=combo,
-                                   column="Code_Job",
+                                   column="Code Job",
                                    table="job")
                     combo.highlighted.connect(args)
                 else:
@@ -204,7 +205,7 @@ class MyWindow(QtGui.QMainWindow):
                 print "Will print all and disable combobox"
 
         def update_combo_client_for_bills():
-            update_combo_from_db(self.comboBoxBills, "Code_Client", "client")
+            update_combo_from_db(self.comboBoxBills, "Code Client", "client")
 
         def get_jobs_wrapper():
             """WF for jobs using function `get_jobs()`.
@@ -268,8 +269,8 @@ class MyWindow(QtGui.QMainWindow):
             """
             cols_i = [0, 1, 2, 3, 4, 5, 6, 7]
 
-            info2grab = ["Code_Job", "Produit", "Brief", "Date_Debut",
-                         "Date_Fin", "Prix", "Somme_Payee"]
+            info2grab = ["Code Job", "Produit", "Brief", "Date Debut",
+                         "Date Fin", "Prix", "Somme Payee"]
             input_window(tab='job', fields=info2grab,
                          mode='new', model=model2, combo=self.comboBoxClients,
                          tabview=self.jobsTable, cols_to_fetch=cols_i)
@@ -277,8 +278,8 @@ class MyWindow(QtGui.QMainWindow):
         def edit_job():
             # cols_i = [0, 1, 2, 3, 4, 5, 6]
             cols_i = [0, 1, 2, 3, 4, 5, 6, 7]
-            info2grab = ["Code_Job", "Produit", "Brief", "Date_Debut",
-                         "Date_Fin", "Prix", "Somme_Payee"]
+            info2grab = ["Code Job", "Produit", "Brief", "Date Debut",
+                         "Date Fin", "Prix", "Somme Payee"]
             input_window(tab='job', fields=info2grab,
                          mode='edit', model=model2,
                          tabview=self.jobsTable, cols_to_fetch=cols_i)
@@ -289,7 +290,9 @@ class MyWindow(QtGui.QMainWindow):
             Passed args are:
             self.comboBoxClients, self.billsTable
             """
-            new_bill_input_dialog(self.comboBoxClients, self.billsTable)
+            new_bill_input_dialog(combo=self.comboBoxClients, 
+                                  table=self.billsTable, 
+                                  model=model4)            
 
         def getfiles(self):
             """Func to display window to retrieve file."""
@@ -327,9 +330,10 @@ class MyWindow(QtGui.QMainWindow):
 
     # =============================================================FACTURES TAB
 
-        self.model = model
-        self.model2 = model2
-        self.model3 = model3
+        self.model = model  # client table
+        self.model2 = model2  # job table
+        self.model3 = model3  # bill table
+        self.model4 = model4  # invoice_items table
 
         init_tree_view(self.treeView)
 
@@ -502,12 +506,12 @@ def make_db():
     cursor.execute("""
         CREATE TABLE client (
         "key" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "Code_Client" VARCHAR(30),
+        "Code Client" VARCHAR(30),
         "Nom" VARCHAR(30),
         "Societe" VARCHAR(30),
         "Telephone" VARCHAR(30),
-        "Factures_Payees" INTEGER(1),
-        "Factures_Recues" INTEGER(1),
+        "Factures Payees" INTEGER(1),
+        "Factures Recues" INTEGER(1),
         "Email" VARCHAR(40),
         UNIQUE ("key") );""")
 
@@ -520,8 +524,8 @@ def make_db():
         (7, "Williwas", "frambounda", "021 69 74 49", 5, 8, "ceemssatgmail")
     ]
     cursor.executemany("""
-        INSERT INTO client ("key","Code_Client", "Nom", "Societe", "Telephone",
-            "Factures_Payees", "Factures_Recues", "Email")
+        INSERT INTO client ("key","Code Client", "Nom", "Societe", "Telephone",
+            "Factures Payees", "Factures Recues", "Email")
         VALUES(NULL,?,?,?,?,?,?,?)""", staff_data)
     connection.commit()
 
@@ -557,7 +561,7 @@ def make_db():
         # print "concatenated:", count
         # # UNCOMMENT SECTION FOR DEBUGGING /END/
         cursor.execute("""
-            UPDATE client SET "Code_Client" = SUBSTR('000'||%s,-3, 3)
+            UPDATE client SET "Code Client" = SUBSTR('000'||%s,-3, 3)
             WHERE "key" = %d  """ % (count, i))
     connection.commit()
 
@@ -577,13 +581,13 @@ def make_db():
     cursor.execute("""
         CREATE TABLE job (
         "key" INTEGER PRIMARY KEY ,
-        "Code_Job" VARCHAR(9),
+        "Code Job" VARCHAR(9),
         "Produit" TEXT,
         "Brief" VARCHAR(30),
-        "Date_Debut" VARCHAR(10),
-        "Date_Fin" VARCHAR(10),
+        "Date Debut" VARCHAR(10),
+        "Date Fin" VARCHAR(10),
         "Prix" VARCHAR(30),
-        "Somme_Payee" VARCHAR(30),
+        "Somme Payee" VARCHAR(30),
         UNIQUE ("key"));""")
 
     job_data = [
@@ -596,8 +600,8 @@ def make_db():
         ("J/003/007", "client 3", "descri", "15/06/2015", "17/10/2017", 15, 5),
     ]
     cursor.executemany("""
-        INSERT INTO job ("key", "Code_Job","Produit", "Brief", "Date_Debut",
-                         "Date_Fin", "Prix", "Somme_Payee")
+        INSERT INTO job ("key", "Code Job","Produit", "Brief", "Date Debut",
+                         "Date Fin", "Prix", "Somme Payee")
         VALUES(NULL,?,?,?,?,?,?,?)""", job_data)
     connection.commit()
 
@@ -646,14 +650,14 @@ def make_db():
     cursor.execute("""
         CREATE TABLE bill (
         "key" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "Code_Facture" VARCHAR(10),
+        "Code Facture" VARCHAR(10),
         "Produit" TEXT,
         "NAP" VARCHAR(30),
-        "Date_Facture" VARCHAR(30),
-        "Date_Paiement" VARCHAR(30),
-        "Pourcentage_Paye" REAL,
+        "Date Facture" VARCHAR(30),
+        "Date Paiement" VARCHAR(30),
+        "Pourcentage Paye" REAL,
         "Statut" VARCHAR(30),
-        UNIQUE ("key","Code_Facture")
+        UNIQUE ("key","Code Facture")
         );""")
 
     bill_data = [
@@ -669,8 +673,8 @@ def make_db():
             "15/06/2015", "17/10/2017", 50, "Publie"),
     ]
     cursor.executemany("""
-        INSERT INTO bill ("key","Code_Facture", "Produit", "NAP",
-            "Date_Facture", "Date_Paiement", "Pourcentage_Paye", "Statut" )
+        INSERT INTO bill ("key","Code Facture", "Produit", "NAP",
+            "Date Facture", "Date Paiement", "Pourcentage Paye", "Statut" )
         VALUES(NULL,?,?,?,?,?,?,?)""", bill_data)
     connection.commit()
 
@@ -795,7 +799,7 @@ def del_selected(tabview, model, table=None):
         connection = sqlite3.connect(DB)
         cursor = connection.cursor()
         # id_us =  "\"" + id_us + "\""
-        # cursor.execute("DELETE FROM orders WHERE Code_Job = '%s';"
+        # cursor.execute("DELETE FROM orders WHERE Code Job = '%s';"
         #                % (id_us.strip()))
 
         cursor.execute("""
@@ -848,25 +852,39 @@ def update_combo_from_db(combo, column, table):
 
     cursor.execute("""
         SELECT DISTINCT "{col}" FROM "{tab}" """.format(col=column, tab=table))
-
     result_key = cursor.fetchall()
+        
+    cursor.execute("""SELECT DISTINCT "Societe" FROM client""")
+    result_company = cursor.fetchall()    
 
-    connection.close()
+    cursor.execute("""SELECT * FROM client""")
+    result_everything = cursor.fetchall()
+    connection.close()    
 
     # UNCOMMENT SECTION FOR DEBUGGING /START/
-    print "result_key:", result_key
+    # print "result_key:", result_key
+    # print "result_company:", result_company
+    # print "result_everything:", result_everything 
+    id_and_comp = []
+    for x in result_everything:
+        # print "x>>> ", x
+        seq = (x[1], x[3])
+        combined = ' '.join(seq)
+        id_and_comp.append(combined)        
+        # print "combined>>>", combined
+    print "id + company:", id_and_comp #[x[1] for x in result_everything],
     # UNCOMMENT SECTION FOR DEBUGGING /END/
-
-    for p in result_key:
-        p = list(p)
-        if p[0] is not None:
+    print
+    for p in id_and_comp:
+        # print "p>>>", p        
+        if p is not None:
             # # UNCOMMENT SECTION FOR DEBUGGING /START/
             # print "unecoded", p
             # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-            p = ucd.normalize('NFKD', p[0]).encode('ascii', 'ignore')
+            p = ucd.normalize('NFKD', p).encode('ascii', 'ignore')
             # UNCOMMENT SECTION FOR DEBUGGING /START/
-            print "encoded", p
+            # print "encoded", p
             # UNCOMMENT SECTION FOR DEBUGGING /END/
         else:
             # # UNCOMMENT SECTION FOR DEBUGGING /START/
@@ -933,7 +951,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
         for key in fields:
 
             # print "lines[key].text():", lines[key].text()
-            if key == "Code_Client" or key == "Code_Job":
+            if key == "Code Client" or key == "Code Job":
                 print "key is BAD: ", key
                 continue
             elif str(lines[key].text()):
@@ -961,7 +979,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
 
         for key in fields:
             # print "lines[key].text():", lines[key].text()
-            if key == "Code_Client" or key == "Code_Job":
+            if key == "Code Client" or key == "Code Job":
                 # print "key is BAD: ", key
                 continue
             elif str(lines[key].text()):
@@ -972,8 +990,8 @@ def input_window(tab=None, model=None, combo=None, mode=None,
                 return
         if tab == "client":
             # add stuff here if client
-            col_dict["Factures_Payees"] = 0
-            col_dict["Factures_Recues"] = 0
+            col_dict["Factures Payees"] = 0
+            col_dict["Factures Recues"] = 0
         # # UNCOMMENT SECTION FOR DEBUGGING /START/
         # print "dict passed to add_to_db_v2: "
         # print col_dict
@@ -1017,7 +1035,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
         # print "result_str", result_str
         if tab == "client":
             cursor.executemany("""
-                UPDATE client SET "Code_Client" = ?
+                UPDATE client SET "Code Client" = ?
                 WHERE "key" = ?""", int_str_tuple)
             # end of update cc
             connection.commit()
@@ -1029,6 +1047,12 @@ def input_window(tab=None, model=None, combo=None, mode=None,
             # Create entry in table ORDERS to keep track of who ordered what.
             ###################################################################
             item = [str(combo.currentText())]
+            print
+            print "<<<item in combo before>>>", item
+
+            item = item[:3]
+            print "<<<item in combo after>>>", item
+            print 
             # fetch last job column
             connection = sqlite3.connect(DB)
             cursor = connection.cursor()
@@ -1040,12 +1064,12 @@ def input_window(tab=None, model=None, combo=None, mode=None,
             last = last[0]
             print "last: ", last
             print "should insert in row last+1: ", last + 1
-            print "item[0]= ", item[0]
+            print "<<<item[0]>>>= ", item[0][:3]
 
             # set values in dict
             m = "<Select Client>"
             orders_dict = {"key": "NULL",
-                           "client_id": item[0],
+                           "client_id": item[0][:3],
                            "job_id": last,
                            }
             if item != m:
@@ -1058,18 +1082,18 @@ def input_window(tab=None, model=None, combo=None, mode=None,
                 ###############################################################
                 # UPDATE JOB CODE
                 #################
-                item[0] = "00000000" + str(item[0])  # +"\'"
+                item[0] = "00000000" + str(item[0][:3])  # +"\'"
                 item[0] = item[0][-3:]
                 last = "00000000" + str(last)  # +"\'"
                 last = last[-3:]
-                code_job_str = "J-" + item[0] + "-" + last
+                code_job_str = "J/" + item[0] + "/" + last
                 params = [code_job_str, last]
-                print "params: ", params
+                print "params>>>: ", params
 
                 connection = sqlite3.connect(DB)
                 cursor = connection.cursor()
                 cursor.execute("""
-                    UPDATE job SET "Code_Job" = ?
+                    UPDATE job SET "Code Job" = ?
                     WHERE "key" = ?""", params)
                 connection.commit()
                 connection.close()
@@ -1090,7 +1114,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
             #     count = "\"" + count + "\""
             #     # print "concatenated:", count
             #     cursor.execute("""
-            #         UPDATE client SET "Code_Client" = {s}
+            #         UPDATE client SET "Code Client" = {s}
             #         WHERE "key" = {k}""" .format(s=count, k=i))
             #     # end of update cc
             # connection.commit()
@@ -1204,7 +1228,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
 
     # create buttons
     for key in fields:
-        if key != ("Code_Job" or "Code_Client"):
+        if key != ("Code Job" or "Code Client"):
             buttons[key] = QtGui.QPushButton(key)
             db_data = existing_data[input_map[key]]
             lines[key] = QtGui.QLineEdit(db_data)
@@ -1271,12 +1295,13 @@ def get_jobs(combo, tab_view, model2, showall=None):
     for r in result_orders:
         print r
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
-    # cursor.execute("""SELECT DISTINCT "Code_Client" FROM client""")
+    # cursor.execute("""SELECT DISTINCT "Code Client" FROM client""")
     # result_key = cursor.fetchall()
     # for r in result_key:
     #     print "result:", r
     if showall is None:
         selected_item = [str(combo.currentText())]
+        selected_item = selected_item[:3]
     elif showall is True:
         selected_item = "<View All>"
     elif showall is False:
@@ -1288,7 +1313,8 @@ def get_jobs(combo, tab_view, model2, showall=None):
 
     # print "Condition input != <Select Clients> evaluates:", selected_item[0]
     # != m
-
+    print "selected_item>>>", selected_item
+    print "selected_item[0][:3]>>>", selected_item[0][:3]
     # code here to take p and fetch all row ids from
     # orders table to display relevant rows from jobs table
     # load db into tableJobs
@@ -1312,6 +1338,7 @@ def get_jobs(combo, tab_view, model2, showall=None):
     if selected_item[0] == m:
         for i in range(count):
             tab_view.hideRow(i)
+            print "entered where selected item= select client"
             # tab_view.setColumnWidth ( int column, int width)
 
     elif selected_item[0] == n:
@@ -1326,8 +1353,8 @@ def get_jobs(combo, tab_view, model2, showall=None):
         # or yet another list comprehension. Since your list of tuples only has
         # one tuple with 53 as first value, you will get a list with one elemt.
         tup2 = [i for i, v in enumerate(result_orders) if v[
-            1] == int(selected_item[0])]
-        # print "list of jobs keys linked to client :", tup2
+            1] == int(selected_item[0][:3])]
+        print "list of jobs keys linked to client :", tup2
         for i in range(count):
             tab_view.hideRow(i)
         for i in tup2:
@@ -1363,7 +1390,7 @@ def get_bills(combo, tab_view, model3, table, showall=None):
     for r in result_orders:
         print r
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
-    # cursor.execute("""SELECT DISTINCT "Code_Client" FROM client""")
+    # cursor.execute("""SELECT DISTINCT "Code Client" FROM client""")
     # result_key = cursor.fetchall()
     # for r in result_key:
     #     print "result:", r
@@ -1436,7 +1463,7 @@ def get_bills(combo, tab_view, model3, table, showall=None):
         # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
 
-def new_bill_input_dialog(combo, table):
+def new_bill_input_dialog(combo=None, table=None, model=None):
     """Launch billQdialog.py and retrieve billing info.
 
     This function will show a dialog for the user to input invoice data
@@ -1462,10 +1489,10 @@ def new_bill_input_dialog(combo, table):
             "key": "NULL",
             "Produit": "Shooting",
             "Brief": "Pub Pepsi",
-            'Date_Debut': "15/11/2016",
-            'Date_Fin': "15/12/2016",
+            'Date Debut': "15/11/2016",
+            'Date Fin': "15/12/2016",
             "Prix": "2500000",
-            "Somme_Payee": "1250000",
+            "Somme Payee": "1250000",
         }
 
         add_to_db_v2(table="bill", d=bill_dict, close_win=win)
@@ -1476,10 +1503,10 @@ def new_bill_input_dialog(combo, table):
         # fetch last job column
         connection = sqlite3.connect(DB)
         cursor = connection.cursor()
-        cursor.execute("""SELECT DISTINCT "key" FROM job""")
+        cursor.execute("""SELECT DISTINCT "key" FROM bill""")
         result_key = cursor.fetchall()
         connection.close()
-        print "All jobs in NewJobIptDia: ", result_key
+        print "All jobs in NewBillIptDia: ", result_key
         last = max(result_key)
         last = last[0]
         print "last: ", last
@@ -1494,7 +1521,7 @@ def new_bill_input_dialog(combo, table):
                      }
         if item != m:
             # call method to update db
-            add_to_db_v2(table="orders", d=bill_dict, close_win=win)
+            add_to_db_v2(table="confirmed", d=bill_dict, close_win=win)
         table.model().select()
 
     def txtchanged(text, k=None):
@@ -1529,7 +1556,11 @@ def new_bill_input_dialog(combo, table):
         print "index of cb: ", index, "value: ", k.currentText()
         in_fields_2_data[k] = k.currentText()
         in_fields_2_data_str[str(k.objectName())] = str(in_fields_2_data[k])
-        in_fields_2_pLbls[k].setText(in_fields_2_data_str[str(k.objectName())])
+        in_fields_2_pLbls[str(k)].setText(in_fields_2_data_str[str(k.objectName())])
+
+    def add_2_inv_items():
+        pass
+        
 
     def preview_inv_tex():
         print
@@ -1542,7 +1573,7 @@ def new_bill_input_dialog(combo, table):
         print "END OF Invoice Preview:"
         print "=" * 80
 
-        generate_latex(inv_data=in_fields_2_data_str, doc="invoice")   
+        generate_latex(inv_data=in_fields_2_data_str, doc="invoice")
         import subprocess
         # first = "C:/Users/Nuts/Desktop/Py/dev/kiwi/gui/"
         # second = ".texbuild/jinja2build/jinja2-testOut.pdf"
@@ -1563,9 +1594,9 @@ def new_bill_input_dialog(combo, table):
         print "END OF Invoice Preview (passed args):"
         print "=" * 80
 
-        generate_docx(inv_data=in_fields_2_data_str, doc="invoice")   
+        generate_docx(inv_data=in_fields_2_data_str, doc="invoice")
 
-    def btnstate(b):
+    def tex_docx_btnstate(b):
         if b.text() == "LaTeX":
             if b.isChecked():
                 print b.text() + " is selected"
@@ -1605,10 +1636,30 @@ def new_bill_input_dialog(combo, table):
 
     print "\n Bill dialog opened."
 
+    # load model into view for invoice items
+    win.invoiceItemsTable.setModel(model)  # load db into tableClients
+    win.invoiceItemsTable.setEditTriggers(
+        QtGui.QAbstractItemView.NoEditTriggers)
+    # trick to auto resize columns, hide, configure then show.
+    win.invoiceItemsTable.setVisible(False)
+    win.invoiceItemsTable.resizeColumnsToContents()
+    win.invoiceItemsTable.resizeRowsToContents()
+    hh = win.invoiceItemsTable.horizontalHeader()
+    hh.setStretchLastSection(True)
+    win.invoiceItemsTable.setShowGrid(False)
+    win.invoiceItemsTable.setSortingEnabled(False)
+    win.invoiceItemsTable.setVisible(True)
+    count = model.rowCount()
+    for i in range(count):
+        win.invoiceItemsTable.hideRow(i)
+
+
+
+
     # define fields that user inputs in dict to loop over when the text changes
     input_keys = [win.leNumBill, win.leCity, win.leClientName,
-                  win.leProduct, win.deCreationDate, win.cbBillCat,
-                  win.deItemDate, win.sbItemQty, win.leUnitPrice]
+                  win.leProduct, win.deCreationDate, win.cbItemCat,
+                  win.deItemDateStart, win.deItemDateEnd, win.sbItemQty, win.leItemUnitPrice, win.leItemDescription]
     # input_keys   = [win.leNumBill, win.leCity, win.leClientName]
 
     # implement dict mapping of line below
@@ -1663,8 +1714,8 @@ def new_bill_input_dialog(combo, table):
         else:
             print "not valid format"
     # Business code
-    win.rbLatex.toggled.connect(partial(btnstate, b=win.rbLatex))
-    win.rbWord.toggled.connect(partial(btnstate, b=win.rbWord))
+    win.rbLatex.toggled.connect(partial(tex_docx_btnstate, b=win.rbLatex))
+    win.rbWord.toggled.connect(partial(tex_docx_btnstate, b=win.rbWord))
 
     result = dialog.exec_()
 
@@ -1711,7 +1762,7 @@ def generate_docx(inv_data=None, doc=None):
     """
     from docx import Document
     from docx.shared import Pt
-    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT, WD_TAB_LEADER
+    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
 
     print "=" * 80
     print "inv_data:"
@@ -1722,9 +1773,8 @@ def generate_docx(inv_data=None, doc=None):
     items = {}
     print "items{}:"
     for key in inv_data.keys():
-        items[key] = str(inv_data[key])        
+        items[key] = str(inv_data[key])
         print "%r: %r" % (key, items[str(key)])
-
 
     print type(items['leNumBill'])
     document = Document()
@@ -1737,29 +1787,26 @@ def generate_docx(inv_data=None, doc=None):
     p = document.add_paragraph('Client: ')
     p.add_run(items['leClientName']).bold = True
 
-    
-    paragraph_format = p.paragraph_format
-    tab_stops = paragraph_format.tab_stops
-    ab_stop = tab_stops.add_tab_stop(Pt(100), WD_TAB_ALIGNMENT.RIGHT)
-    p.add_run('\tAlger le: ')
+    # paragraph_format = p.paragraph_format
+    # tab_stops = paragraph_format.tab_stops
+    # tab_stop = tab_stops.add_tab_stop(Pt(100), WD_TAB_ALIGNMENT.RIGHT)
+    p.add_run('\t\t\t\t\t\t\t Alger le: ')
     p.add_run(items['deCreationDate']).bold = True
-    
+
     p = document.add_paragraph('Produit: ')
     p.add_run(items['leProduct']).bold = True
 
     table = document.add_table(rows=1, cols=4)
+    table.style = 'TableGrid'
     hdr_cells = table.rows[0].cells
-    hdr_cells[0].text = 'Désignation'
-    hdr_cells[1].text = 'Quantité'
+    hdr_cells[0].text = 'Designation'
+    hdr_cells[1].text = 'Quantite'
     hdr_cells[2].text = 'Prix'
     hdr_cells[3].text = 'Montant'
     document.save('demo.docx')
 
 
-
-
-
-def generate_latex(inv_data=None, doc=None):
+def generate_latex(inv_data=None, doc=None, inv_items=None):
     """GEN Latex document based on args and a template, and jinja2.
 
     This function will programatically generate latex .tex documents replacing
@@ -1802,7 +1849,7 @@ def generate_latex(inv_data=None, doc=None):
 
         build_d = "{}.texbuild/jinja2build/".format(project)
         out_fil = "{}jinja2-testOut".format(build_d)
-        template = latex_jinja_env.get_template('kiwi-template-1.tex')
+        template = latex_jinja_env.get_template('kiwi-invoice-template-1.tex')
 
         # # user inputs hardcoded for testing (to delete afterwards...)
         # numfac = 'FAC000-000'
@@ -1826,6 +1873,16 @@ def generate_latex(inv_data=None, doc=None):
         qty = "1"
         unit_price = "160000"
 
+        inv_items = {"Category":"Couverture Evenement",
+                     "Start_Date":"15/10/2016",
+                     "End_Date":"15/10/2016",
+                     "Description":"Suivi Evenement Bingo",
+                     "Quantity":"1",
+                     "Unit_Price":"500000",
+                     "Subtotal":"500000",
+                     "Invoice_id":"1"
+        }
+
         total_price = str(int(qty) * int(unit_price))
         numbers = [unit_price, total_price]
 
@@ -1846,7 +1903,8 @@ def generate_latex(inv_data=None, doc=None):
                                    qty=qty,
                                    unit_price=numbers[0],
                                    total_price=numbers[1],
-                                   product=product)
+                                   product=product,
+                                   inv_items=inv_items)
         # saves tex_code to outpout file
         with io.open(out_fil + ".tex", "w", encoding='utf8') as f:
             f.write(tex_code)
@@ -1857,8 +1915,11 @@ def generate_latex(inv_data=None, doc=None):
         #                                os.path.realpath(tex_code)))
     elif doc == "estimate":
         raise NotImplementedError
-    else:
+    elif (doc is not None) and ((doc != "invoice") or (doc != "estimate")):
         print "Arg `%s` is invalid, please use `invoice or `estimate`." % doc
+    else:
+        print "Error in generate_latex(inv_data=None, doc=None, inv_items=None)"
+        
 
 
 def init_tree_view(treeView):
@@ -1969,7 +2030,7 @@ def add_to_db_v2(close_win=None, d=None, table=None):
 
                 print "normal value: ", d[k]
                 cursor.execute("""
-                    UPDATE {tn} SET {col} = {data} WHERE key = {r}""".
+                    UPDATE {tn} SET "{col}" = {data} WHERE key = {r}""".
                                format(tn=table, col=k, data=d[k], r=last))
                 print "Added in col:", k, "value :", d[k]
 
@@ -2015,7 +2076,7 @@ def update_db(close_win=None, d=None, table=None, row=None):
 
             print "\n"
 
-            cursor.execute("""UPDATE {tn} SET {col} = {data} WHERE key = {r}"""
+            cursor.execute("""UPDATE {tn} SET "{col}" = {data} WHERE key = {r}"""
                            .format(tn=table, col=k, data=d[k], r=row))
         connection.commit()
         connection.close()
@@ -2041,7 +2102,7 @@ def update_db(close_win=None, d=None, table=None, row=None):
     #     print "concatenated:", count
 
     #     cursor.execute(
-    #         """UPDATE client SET 'Code_Client' = {s}
+    #         """UPDATE client SET 'Code Client' = {s}
     #            WHERE 'key' = {k}""" .format(s=count, k=i))
 
     # connection.commit()
@@ -2064,7 +2125,9 @@ if __name__ == '__main__':
     # set_style(app)
 
     if not os.path.exists(DB):
+        print "DB not found! Creating new DB."
         make_db()
+
 
     myDb = QtSql.QSqlDatabase.addDatabase("QSQLITE")
     myDb.setDatabaseName(DB)
@@ -2076,6 +2139,7 @@ if __name__ == '__main__':
     model = MyModel(tab='client')
     model2 = MyModel(tab='job')
     model3 = MyModel(tab='bill')
+    model4 = MyModel(tab='invoice_items')
     # app.setStyleSheet('blender_mod_btns.css')
 
     window = MyWindow(model, model2, model3)

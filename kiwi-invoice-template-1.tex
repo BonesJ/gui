@@ -53,6 +53,11 @@ Produit: \textbf{\VAR{product}}
 \midrule
 % for loop stuff here to loop over all rows
 % to invoicein invoice items relevant
+\BLOCK{ for key in inv_items }
+  \item Counting: \VAR{key}
+\BLOCK{ endfor }
+
+
 \textbf{Catégorie: \VAR{category}}:  &  &  & \\
 \quad Reportage photo + post production & $\VAR{qty}$ & DA $\VAR{unit_price}$ & DA $\VAR{total_price}$\\
 \bottomrule
