@@ -396,7 +396,7 @@ class Ui_Dialog(object):
         sizePolicy.setHeightForWidth(self.treeWidget.sizePolicy().hasHeightForWidth())
         self.treeWidget.setSizePolicy(sizePolicy)
         self.treeWidget.setSizeIncrement(QtCore.QSize(0, 1))
-        self.treeWidget.setAlternatingRowColors(True)
+        self.treeWidget.setAlternatingRowColors(False)
         self.treeWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectItems)
         self.treeWidget.setObjectName(_fromUtf8("treeWidget"))
         item_0 = QtGui.QTreeWidgetItem(self.treeWidget)

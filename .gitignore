@@ -20,3 +20,11 @@ resources/icons/*.png
 previous-versions/kiwi_UI_i.ui
 *.docx
 treeselector_.pyc
+README-test.md
+done.txt
+icons.py
+icons_rc.py
+icons_rc.pyc
+readme_task_organiser.py
+treeView_test_widget.py
+treeselector.ui

@@ -9,7 +9,7 @@ from itertools import cycle
 from functools import partial
 import compiled_resources
 import treeselector_
-import progress
+
 # from kiwi_UI import Ui_MainWindow
 
 # GLOBAL VAR
@@ -1241,8 +1241,6 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     print "input map", input_map
     buttons = {}
     lines = {}
-
-
     # create buttons
     for key in fields:
         if key != ("Code Job" or "Code Client"):
@@ -1903,7 +1901,7 @@ def generate_latex(inv_data=None, doc=None, inv_items=None):
                      "Unit_Price":"500000",
                      "Subtotal":"500000",
                      "Invoice_id":"1"
-        }
+                    }
 
         total_price = str(int(qty) * int(unit_price))
         numbers = [unit_price, total_price]
@@ -1994,7 +1992,6 @@ def init_tree_view(treeView):
     ]
     model = QtGui.QStandardItemModel()
 
-    addItems(model, data)
     treeView.setModel(model)
     model.setHorizontalHeaderLabels([("Clients/Jobs/Factures")])
     treeView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
