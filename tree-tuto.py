@@ -67,11 +67,13 @@ class Node(object):
         
         for i in range(tabLevel):
             output += "\t"
-        print "before>>", self._name
+        # print "before>>", self._name
+        printTree(self._name, "before")
         if type(self._name) is not type("a"):
             self._name=self._name.toString()
             print "entered"
-            print "after>>", self._name
+            # print "after>>", self._name
+            printTree(self._name, "after>>")
 
         output += "|------" + self._name + "\n"
         
@@ -83,8 +85,11 @@ class Node(object):
         
         return output
 
-    def __repr__(self):
-        return str(self.log())
+    # def __repr__(self):
+    #     return str(self.log())
+
+def printTree(self, string):
+    return string + str(self.log())
 
 
 
@@ -284,7 +289,7 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
         return success
 
 def print_tree():
-    print rootNode
+    printTree(rootNode,"test")
     
 
 if __name__ == '__main__':
