@@ -21,8 +21,9 @@ STYLES = ['blender_mod_btns.css', 'blank.css']
 # , 'blender.css', 'dark-blue.css', 'dark-green.css','dark-orange.css',
 # 'light-blue.css', 'light-green.css','light-orange.css']
 STYLE = cycle(STYLES)
+MODIF_LINE_COUNT = {"001": 1, "002": 5}
 
-#  max line 1748
+#  max line 2423
 
 
 class MyWindow(QtGui.QMainWindow):
@@ -36,7 +37,7 @@ class MyWindow(QtGui.QMainWindow):
     """
 
     def __init__(self, model, model2, model3):
-        """Init taking all models of app. add more arguments for more models.
+        """Init taking all models of app. Add more arguments for more models.
 
         At present time we take in 3 models used for the tableviews
         """
@@ -200,7 +201,7 @@ class MyWindow(QtGui.QMainWindow):
                 combo.setMaximumWidth(0)
                 combo.setEnabled(False)
                 if group == "jobs":
-                    get_jobs(self.comboBoxClients, self.jobsTable,
+                    get_jobs_tabview(self.comboBoxClients, self.jobsTable,
                              self.model2, showall=True)
                 elif group == "bills":
                     get_bills(self.comboBoxBills, self.billsTable,
@@ -210,13 +211,13 @@ class MyWindow(QtGui.QMainWindow):
         def update_combo_client_for_bills():
             update_combo_from_db(self.comboBoxBills, "Code Client", "client")
 
-        def get_jobs_wrapper():
-            """WF for jobs using function `get_jobs()`.
+        def get_jobs_tabview_wrapper():
+            """WF for jobs using function `get_jobs_tabview()`.
 
             Passed args are:
             self.comboBoxClients, self.jobsTable, self.model2
             """
-            get_jobs(self.comboBoxClients, self.jobsTable, self.model2)
+            get_jobs_tabview(self.comboBoxClients, self.jobsTable, self.model2)
 
         def dock_toggle():
             """Func to toggle `Modifications` dock."""
@@ -293,9 +294,9 @@ class MyWindow(QtGui.QMainWindow):
             Passed args are:
             self.comboBoxClients, self.billsTable
             """
-            new_bill_input_dialog(combo=self.comboBoxClients, 
-                                  table=self.billsTable, 
-                                  model=model4)            
+            new_bill_input_dialog(combo=self.comboBoxClients,
+                                  table=self.billsTable,
+                                  model=model4)
 
         def getfiles(self):
             """Func to display window to retrieve file."""
@@ -315,6 +316,78 @@ class MyWindow(QtGui.QMainWindow):
                     data = f.read()
                     self.contents.setText(data)
 
+        def fetch_jobs_from_client():
+            forclient = str(self.modifClientComboBox.currentText())
+            print "slected client :>:>", forclient
+            if forclient == "<Client>":
+                self.modifJobComboBox.setEnabled(False)
+            else:
+                self.modifJobComboBox.setEnabled(True)
+
+            args = partial(update_combo_from_db,
+                combo=self.modifJobComboBox,
+                column="Code Client", table="job",
+                displayfor=forclient)
+            self.modifJobComboBox.highlighted.connect(args)
+
+        def add_modif_line():
+            def strikeout(self):
+                if checkboxes["001"].isChecked():
+                    lines["001"].setStyleSheet("""
+                       QLineEdit
+                       {
+                            text-decoration: line-through;
+                       }
+                       """)
+                else:
+                    lines["001"].setStyleSheet("""
+                       QLineEdit
+                       {
+
+                       }
+                       """)
+
+            def remove_line(self):
+                pass
+
+            global MODIF_LINE_COUNT
+
+            # input_map = dict(zip(fields, cols_to_fetch))
+            # print "input map", input_map
+            MODIF_LINE_COUNT["001"] += 1
+            closebuttons = {}
+            lines = {}
+            checkboxes = {}
+
+            i = 5
+            checkboxes["001"] = QtGui.QCheckBox()
+            checkboxes["001"].toggled.connect(strikeout)
+            lines["001"] = QtGui.QLineEdit()
+            closebuttons["001"] = QtGui.QToolButton()
+
+            self.gridLayout_4.addWidget(checkboxes["001"], i, 0, 1, 1)
+            self.gridLayout_4.addWidget(lines["001"], i, 1, 1, 2)
+            self.gridLayout_4.addWidget(closebuttons["001"], i, 3, 1, 1)
+
+            # # create buttons
+            # for key in fields:
+            #     if key != ("Code Job" or "Code Client"):
+            #         buttons[key] = QtGui.QPushButton(key)
+            #         db_data = existing_data[input_map[key]]
+            #         lines[key] = QtGui.QLineEdit(db_data)
+            #         lines[key].setReadOnly(True)
+            #         buttons[key].clicked.connect(
+            #             partial(print, "testest"))
+            #         # # UNCOMMENT SECTION FOR DEBUGGING /START/
+            #         # print buttons[key]
+            #         # print lines[key]
+            #         # # UNCOMMENT SECTION FOR DEBUGGING /END/
+            #         gridLayout_4.addWidget(buttons[key], i, 0)
+            #         gridLayout_4.addWidget(lines[key], i, 1)
+            #         i += 1
+            #    else:
+            #        continue
+
     # ===============================================APPLICATION INITIALISATION
 
         # In here configure applicationwide settings(theme, dock, menubar etc.)
@@ -327,9 +400,19 @@ class MyWindow(QtGui.QMainWindow):
         self.dockWidget.close()
         self.btnModif.clicked.connect(dock_toggle)
 
-        # menubar buttons
+        # menubar bar
         self.actionCycle_Theme.triggered.connect(change_theme)
         self.actionLoad.triggered.connect(getfiles)
+    # ========================================================MODIFICATION DOCK
+        self.btnAddModif.clicked.connect(add_modif_line)
+
+        args = partial(update_combo_from_db,
+            combo=self.modifClientComboBox,
+            column="Code Client",
+            table="client")
+        self.modifClientComboBox.highlighted.connect(args)
+        self.modifClientComboBox.currentIndexChanged.connect(
+            fetch_jobs_from_client)
 
     # =============================================================FACTURES TAB
 
@@ -337,14 +420,14 @@ class MyWindow(QtGui.QMainWindow):
         self.model2 = model2  # job table
         self.model3 = model3  # bill table
         self.model4 = model4  # invoice_items table
-  
+
         # # disable  Bills and Jobs buttons as Default
         self.btnNewJ.setEnabled(False)
         self.btnEditJ.setEnabled(False)
         self.btnDelJ.setEnabled(False)
         self.btnNewBill.setEnabled(True)
 
-        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         # Clients groupbox Managment
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         # ========================================================Buttons Setup
@@ -390,7 +473,7 @@ class MyWindow(QtGui.QMainWindow):
         self.comboBoxClients.setMinimumWidth(0)  # initially hide ComboBoxe
         self.comboBoxClients.setMaximumWidth(0)
         self.comboBoxClients.currentIndexChanged.connect(combo_jobs_status)
-        self.comboBoxClients.activated.connect(get_jobs_wrapper)
+        self.comboBoxClients.activated.connect(get_jobs_tabview_wrapper)
 
         # ==========================================================Table Setup
         #  Enter code here...
@@ -807,9 +890,9 @@ def del_selected(tabview, model, table=None):
                 DELETE FROM orders
                 WHERE "client_id" = '%s' AND "job_id" = '%s' """ % (cid, jid))
         connection.commit()
-
-        cursor.execute("""SELECT * FROM orders""")
-        result_orders = cursor.fetchall()
+        # UNCOMMENT BELOW TO DEBUG
+        # cursor.execute("""SELECT * FROM orders""")
+        # result_orders = cursor.fetchall()
         connection.close()
         # # UNCOMMENT SECTION FOR DEBUGGING /START/
         # print "result orders after deletion:"
@@ -828,7 +911,7 @@ def del_selected(tabview, model, table=None):
     # w.close()
 
 
-def update_combo_from_db(combo, column, table):
+def update_combo_from_db(combo, column, table, displayfor=None):
     """Function update contents of ComboBox.
 
     Rewritten to take following arguments:
@@ -842,7 +925,8 @@ def update_combo_from_db(combo, column, table):
     # print "-" * 80
     # print "START OF FUNCTION update combo client"
     # UNCOMMENT SECTION FOR DEBUGGING /END/
-
+    if displayfor is not None:
+        print "displayfor mode active>>", displayfor
     connection = sqlite3.connect(DB)
     cursor = connection.cursor()
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
@@ -851,33 +935,50 @@ def update_combo_from_db(combo, column, table):
     # print "result all:", result_all
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
-    cursor.execute("""
-        SELECT DISTINCT "{col}" FROM "{tab}" """.format(col=column, tab=table))
-    result_key = cursor.fetchall()
-        
-    cursor.execute("""SELECT DISTINCT "Societe" FROM client""")
-    result_company = cursor.fetchall()    
+    # Unused part of the code, should try to reimplement it
+    # cursor.execute("""
+    #     SELECT DISTINCT "{col}" FROM "{tab}" """.format(col=column, tab=table))
+    # result_key = cursor.fetchall()
+
+    # cursor.execute("""SELECT DISTINCT "Societe" FROM client""")
+    # result_company = cursor.fetchall()
 
     cursor.execute("""SELECT * FROM client""")
     result_everything = cursor.fetchall()
-    connection.close()    
+
+    cursor.execute("""SELECT * FROM job""")
+    result_everything_job = cursor.fetchall()
+
+    if displayfor != "<Client>" and displayfor is not None:
+        print "Print keys of jobs linked to client"
+        cursor.execute("""SELECT * FROM orders WHERE client_id = "{k}" """
+                .format(k=displayfor[:3]))
+        result_displayfor = cursor.fetchall()
+        print result_displayfor
+    connection.close()
 
     # UNCOMMENT SECTION FOR DEBUGGING /START/
     # print "result_key:", result_key
     # print "result_company:", result_company
-    # print "result_everything:", result_everything 
+    # print "result_everything:", result_everything
+    if table == "client":
+        result = result_everything
+    elif table == "job":
+        result = result_everything_job
+    else:
+        raise NotImplementedError
     id_and_comp = []
-    for x in result_everything:
+    for x in result:
         # print "x>>> ", x
         seq = (x[1], x[3])
         combined = ' '.join(seq)
-        id_and_comp.append(combined)        
+        id_and_comp.append(combined)
         # print "combined>>>", combined
     # print "id + company:", id_and_comp #[x[1] for x in result_everything],
     # UNCOMMENT SECTION FOR DEBUGGING /END/
     print
     for p in id_and_comp:
-        # print "p>>>", p        
+        # print "p>>>", p
         if p is not None:
             # # UNCOMMENT SECTION FOR DEBUGGING /START/
             # print "unecoded", p
@@ -927,15 +1028,15 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     """Create modal dialog w/ len(fields) rows of QPushButton & QLineEdit pairs.
 
     Args:
-        tab (SQLITE table):  table to read/write.
-        model (QtSql.QSqlTableModel): tableview model to update.
-        combo (Qt.QtGui.QComboBox): combo box data to be fetched.
-        fields (list):  List of strings to generate buttons. Strings must match
-                        column names in SQL table
-        mode (str): new mode or edit mode for SQLITE scripts
-                    --if edit mode selected, we will display data to be
-                    modified in QLineEdit. If undefined or new, it will
-                    show empty... maybe redundant
+        tab     (SQLITE table):     -Table to read/write.
+        model (QSqlTableModel):     -Tableview model to update.
+        combo      (QComboBox):     -combo box data to be fetched.
+        fields          (list):     -List of strings to generate buttons.
+                                     Strings must match col names in SQL table
+        mode             (str):     -New mode or edit mode for SQLITE scripts.
+                                     If edit mode selected, we will display
+                                     data to be modified in QLineEdit.
+                                     If undefined or new, it will show empty...
     Returns:
         bool: The return value. True for success, False otherwise.
     """
@@ -1054,7 +1155,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
 
             item = item[:3]
             # print "<<<item in combo after>>>", item
-            # print 
+            # print
             # fetch last job column
             connection = sqlite3.connect(DB)
             cursor = connection.cursor()
@@ -1131,7 +1232,6 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     what = "Something went wrong...."
     window_info = "Information Input Window"
 
-
     for k in cols_to_fetch:
         existing_data[k] = ""
     if mode == "edit":
@@ -1148,7 +1248,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
             # print "ALL INDICES: ", all_indices
 
             # cols_to_fetch = [1, 2, 3, 4, 7]
-            # print cols_to_fetch 
+            # print cols_to_fetch
             for k in cols_to_fetch:
                 # print "k:", k
                 i = tabview.selectedIndexes()[k]
@@ -1208,7 +1308,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
         what = " Client"
         text += what
         # i is rwos to offset (number of rows before start putting rows
-        # of buttons and qlineedits, currently == 2 because two labels 
+        # of buttons and qlineedits, currently == 2 because two labels
         i = 2
 
         window_info = "Information Input Window"
@@ -1218,45 +1318,10 @@ def input_window(tab=None, model=None, combo=None, mode=None,
         what = " Job"
         text += what
         # i is rwos to offset (number of rows before start putting rows
-        # of buttons and qlineedits, currently == 3 because two labels and a widget
-        #  come before button fields...
-        i = 3
-        # reload(treeselector_)
-        # tree_selector = treeselector_.Ui_()
-        # # ============================================experimental
+        # of buttons and qlineedits, currently == 3 because two labels and
+        # a widget come before button fields...
+        #
 
-        # # need a function that maps sqlite table to  following lines
-        # rootNode   = treeselector_.Node("Products")
-        # childNode0 = treeselector_.Node("Services", rootNode)
-        # childNode1 = treeselector_.Node("RightPirateLeg_END", childNode0)
-        # childNode2 = treeselector_.Node("Rental", rootNode)
-        # childNode3 = treeselector_.Node("LeftTibia", childNode2)
-        # childNode4 = treeselector_.Node("LeftFoot", childNode3)
-        # childNode5 = treeselector_.Node("LeftToe", childNode4)
-
-        # # print rootNode
-        # product_services_model = treeselector_.SceneGraphModel(rootNode)
-
-        # tree_selector.productStructView.setModel(product_services_model)
-        # tree = tree_selector.productStructView
-        # tree_selector.pushButton_18.clicked.connect(partial(del_node,tree))
-        # tree_selector.pushButton_16.clicked.connect(partial(add_node_item,tree)) 
-        # tree_selector.pushButton_17.clicked.connect(partial(add_node_subitem,tree)) 
-        
-        # unit_price = tree_selector.doubleSpinBox_7.value()
-        # # print
-        # # print "unit_price fetched from SpinBox>>", unit_price
-        # # print
-
-        # tree_selector.pushButton_6.clicked.connect(partial(edit_node,tree,unit_price,1,tree_selector,product_services_model))
-        # tree_selector.pushButton_15.clicked.connect(partial(edit_node,tree,unit_price,2,tree_selector,product_services_model))
-        
-        # # tree_selector.btnPrint.clicked.connect(print_tree)
-
-        # # rightPirateLeg = product_services_model.index(0, 0, QtCore.QModelIndex())
-        # print "\n<<Successfully Added Model to Tree selector>>\n"
-        # ===========================================end of experimental
-        # tree_selector.productStructView.setModel(treeviewmodel.model)
         tree_selector = init_tree_view()
         layout.addWidget(tree_selector, 2, 0, 1, 2)
 
@@ -1325,7 +1390,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     win.exec_()
 
 
-def get_jobs(combo, tab_view, model2, showall=None):
+def get_jobs_tabview(combo, tab_view, model2, showall=None):
     """Fetch data from ComboBox & display corresponding rows in QTableView.
 
     Thia function will show only jobs of selected client by hiding all other
@@ -1335,7 +1400,7 @@ def get_jobs(combo, tab_view, model2, showall=None):
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
     # print "\n"
     # print "-" * 80
-    # print "START METHOD 'get_jobs'... \n"
+    # print "START METHOD 'get_jobs_tabview'... \n"
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
     connection = sqlite3.connect(DB)
     cursor = connection.cursor()
@@ -1397,6 +1462,8 @@ def get_jobs(combo, tab_view, model2, showall=None):
         for i in range(count):
             tab_view.showRow(i)
     else:
+        print "selected_item[0][:3]>>", selected_item[0][:3]
+
         # Explained in words: For each i, v in a enumerated list of L
         # (that makes i the element's position in the enumerated list
         # and v the original tuple) check if the tuple's first element
@@ -1404,20 +1471,21 @@ def get_jobs(combo, tab_view, model2, showall=None):
         # newly created list, here: i. It could also be my_function(i, v)
         # or yet another list comprehension. Since your list of tuples only has
         # one tuple with 53 as first value, you will get a list with one elemt.
-        tup2 = [i for i, v in enumerate(result_orders) if v[
-            1] == int(selected_item[0][:3])]
-        # print "list of jobs keys linked to client :", tup2
-        for i in range(count):
-            tab_view.hideRow(i)
-        for i in tup2:
-            tab_view.showRow(i)
-        tab_view.model().layoutChanged.emit()
-        # # UNCOMMENT SECTION FOR DEBUGGING /START/
-        # print "Client<", selected_item[0], ">selected"
-        # print "END OF METHOD 'get_jobs'... \n"
-        # print "-" * 80
-        # print "\n"
-        # # UNCOMMENT SECTION FOR DEBUGGING /END/
+        if selected_item[0][:3] != "<":
+            tup2 = [i for i, v in enumerate(result_orders) if v[
+                1] == int(selected_item[0][:3])]
+            # print "list of jobs keys linked to client :", tup2
+            for i in range(count):
+                tab_view.hideRow(i)
+            for i in tup2:
+                tab_view.showRow(i)
+            tab_view.model().layoutChanged.emit()
+            # # UNCOMMENT SECTION FOR DEBUGGING /START/
+            # print "Client<", selected_item[0], ">selected"
+            # print "END OF METHOD 'get_jobs_tabview'... \n"
+            # print "-" * 80
+            # print "\n"
+            # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
 
 def get_bills(combo, tab_view, model3, table, showall=None):
@@ -1430,7 +1498,7 @@ def get_bills(combo, tab_view, model3, table, showall=None):
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
     # print "\n"
     # print "-" * 80
-    # print "START METHOD 'get_jobs'... \n"
+    # print "START METHOD 'get_jobs_tabview'... \n"
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
     connection = sqlite3.connect(DB)
     cursor = connection.cursor()
@@ -1509,7 +1577,7 @@ def get_bills(combo, tab_view, model3, table, showall=None):
         tab_view.model().layoutChanged.emit()
         # # UNCOMMENT SECTION FOR DEBUGGING /START/
         # print "Client<", selected_item[0], ">selected"
-        # print "END OF METHOD 'get_jobs'... \n"
+        # print "END OF METHOD 'get_jobs_tabview'... \n"
         # print "-" * 80
         # print "\n"
         # # UNCOMMENT SECTION FOR DEBUGGING /END/
@@ -1612,7 +1680,6 @@ def new_bill_input_dialog(combo=None, table=None, model=None):
 
     def add_2_inv_items():
         pass
-        
 
     def preview_inv_tex():
         print
@@ -1670,7 +1737,6 @@ def new_bill_input_dialog(combo=None, table=None, model=None):
         print "Locked/Unlocked"
         print
 
-
     try:
         _fromUtf8 = QtCore.QString.fromUtf8
     except AttributeError:
@@ -1692,44 +1758,11 @@ def new_bill_input_dialog(combo=None, table=None, model=None):
     win.setupUi(dialog)
     set_style(dialog)
 
-    # reload(treeselector_)
-    # tree_selector = treeselector_.Ui_()
-    # # ============================================experimental
-
-    # # need a function that maps sqlite table to  following lines
-    # rootNode   = treeselector_.Node("Products")
-    # childNode0 = treeselector_.Node("Services", rootNode)
-    # childNode1 = treeselector_.Node("RightPirateLeg_END", childNode0)
-    # childNode2 = treeselector_.Node("Rental", rootNode)
-    # childNode3 = treeselector_.Node("LeftTibia", childNode2)
-    # childNode4 = treeselector_.Node("LeftFoot", childNode3)
-    # childNode5 = treeselector_.Node("LeftToe", childNode4)
-
-    # # print rootNode
-    # product_services_model = treeselector_.SceneGraphModel(rootNode)
-
-    # tree_selector.productStructView.setModel(product_services_model)
-    # tree = tree_selector.productStructView
-    # tree_selector.pushButton_18.clicked.connect(partial(del_node,tree))
-    # tree_selector.pushButton_16.clicked.connect(partial(add_node_item,tree)) 
-    # tree_selector.pushButton_17.clicked.connect(partial(add_node_subitem,tree)) 
-    
-    # unit_price = tree_selector.doubleSpinBox_7.value()
-    # # print
-    # # print "unit_price fetched from SpinBox>>", unit_price
-    # # print
-
-    # tree_selector.pushButton_6.clicked.connect(partial(edit_node,tree,unit_price,1,tree_selector,product_services_model))
-    # tree_selector.pushButton_15.clicked.connect(partial(edit_node,tree,unit_price,2,tree_selector,product_services_model))
-    
-
     print "\n<<Successfully Added Model to Tree selector>>\n"
     tree_selector = init_tree_view()
     win.horizontalLayout_18.addWidget(tree_selector)
 
-
     print "\n Bill dialog opened."
-
     # load model into view for invoice items
     win.invoiceItemsTable.setModel(model)  # load db into tableClients
     win.invoiceItemsTable.setEditTriggers(
@@ -1746,9 +1779,6 @@ def new_bill_input_dialog(combo=None, table=None, model=None):
     count = model.rowCount()
     for i in range(count):
         win.invoiceItemsTable.hideRow(i)
-
-
-
 
     # define fields that user inputs in dict to loop over when the text changes
     input_keys = [win.leNumBill, win.leCity, win.leClientName,
@@ -1965,15 +1995,15 @@ def generate_latex(inv_data=None, doc=None, inv_items=None):
         qty = "1"
         unit_price = "160000"
 
-        inv_items = {"Category":"Couverture Evenement",
-                     "Start_Date":"15/10/2016",
-                     "End_Date":"15/10/2016",
-                     "Description":"Suivi Evenement Bingo",
-                     "Quantity":"1",
-                     "Unit_Price":"500000",
-                     "Subtotal":"500000",
-                     "Invoice_id":"1"
-                    }
+        inv_items = {
+            "Category": "Couverture Evenement",
+            "Start_Date": "15/10/2016",
+            "End_Date": "15/10/2016",
+            "Description": "Suivi Evenement Bingo",
+            "Quantity": "1",
+            "Unit_Price": "500000",
+            "Subtotal": "500000",
+            "Invoice_id": "1"}
 
         total_price = str(int(qty) * int(unit_price))
         numbers = [unit_price, total_price]
@@ -2010,16 +2040,52 @@ def generate_latex(inv_data=None, doc=None, inv_items=None):
     elif (doc is not None) and ((doc != "invoice") or (doc != "estimate")):
         print "Arg `%s` is invalid, please use `invoice or `estimate`." % doc
     else:
-        print "Error in generate_latex(inv_data=None, doc=None, inv_items=None)"
-        
-
+        print "Error in generate_latex(inv_data, doc, inv_items)"
 
 
 def init_tree_view():
     """Function to initialise the treeView found in home window."""
     reload(treeselector_)
     tree_selector = treeselector_.Ui_()
-    # ============================================experimental
+
+    # if table in db does not exist, pop up window showing treeview
+    # to allow user an initia description of their products and Services
+    # as a hierarchical tree. Store thin in db
+    connection = sqlite3.connect(DB)
+    cursor = connection.cursor()
+    # DB has three main tables and 2 linking tables.
+    # Code copied and pasted 3 times... need to find sol, in te mean time it
+    # works...
+    cursor.execute("""
+    SELECT count(*) FROM sqlite_master
+    WHERE type='table' AND name='product_structure';""")
+    result = cursor.fetchall()
+    connection.close()
+    result = result[0][0]
+    # print result
+    if result is False:
+        print "will create table here..."
+        # product structure tablee ...
+        # cursor.execute("""
+        #     CREATE TABLE product_structure (
+        #     key INTEGER PRIMARY KEY AUTOINCREMENT,
+        #     name VARCHAR(30),
+        #     flat_price REAL,
+        #     rate_price REAL,
+        #     parent_key INTEGER NULL REFERENCES product_structure (key)
+        #     ;""")
+    # # product structure tablee ...
+    # cursor.execute("""
+    #     CREATE TABLE client (
+    #     "key" INTEGER PRIMARY KEY AUTOINCREMENT,
+    #     "Code Client" VARCHAR(30),
+    #     "Nom" VARCHAR(30),
+    #     "Societe" VARCHAR(30),
+    #     "Telephone" VARCHAR(30),
+    #     "Factures Payees" INTEGER(1),
+    #     "Factures Recues" INTEGER(1),
+    #     "Email" VARCHAR(40),
+    #     UNIQUE ("key") )
 
     # need a function that maps sqlite table to  following lines
     rootNode   = treeselector_.Node("Products")
@@ -2035,27 +2101,25 @@ def init_tree_view():
 
     tree_selector.productStructView.setModel(product_services_model)
     tree = tree_selector.productStructView
-    tree_selector.pushButton_18.clicked.connect(partial(del_node,tree))
-    tree_selector.pushButton_16.clicked.connect(partial(add_node_item,tree)) 
-    tree_selector.pushButton_17.clicked.connect(partial(add_node_subitem,tree)) 
-    
+    tree_selector.pushButton_18.clicked.connect(partial(del_node, tree))
+    tree_selector.pushButton_16.clicked.connect(partial(add_node_item, tree))
+    tree_selector.pushButton_17.clicked.connect(partial(add_node_subitem, tree))
+
     unit_price = tree_selector.doubleSpinBox_7.value()
 
-
     tree_selector.btnEdit1.clicked.connect(partial(edit_node,tree,
-                                                   unit_price,1,
+                                                   unit_price, 1,
                                                    tree_selector,
                                                    product_services_model))
 
-    tree_selector.btnEdit2.clicked.connect(partial(edit_node,tree,
-                                                   unit_price,2,
+    tree_selector.btnEdit2.clicked.connect(partial(edit_node, tree,
+                                                   unit_price, 2,
                                                    tree_selector,
                                                    product_services_model))
-    
 
     print "\n<<Successfully Added Model to Tree selector>>\n"
-    return tree_selector
 
+    return tree_selector
 
 
 def add_to_db_v2(close_win=None, d=None, table=None):
@@ -2202,16 +2266,39 @@ def update_db(close_win=None, d=None, table=None, row=None):
     print "\nExited update_db(): ----------------------"
 
 
-def del_node(tree=None):    
+def del_node(tree=None):
     index = tree.selectedIndexes()[0]
     print "index>>", index
     tree.model().removeRow(index.row(), parent=index.parent())
 
+
 def add_node_item(tree=None):
     index = tree.selectedIndexes()[0]
     print "index at item>>", str(index)
-    tree.model().insertRow(index.row()+1, parent=index.parent())
+    tree.model().insertRow(index.row() + 1, parent=index.parent())
     # tree.model().insertRows(index.row()+1, 1, parent=index.parent())
+
+    model = tree.model()
+    # data = []
+    # rowCount = model.rowCount(index)
+    # print "rowcount form tree:", rowCount
+    # for row in range(model.recursiveRowCount(index)):
+    #     data.append([])
+    #     for column in range(model.columnCount(index)):
+    #         index = model.index(row, column)
+    #         data[row].append(str(model.data(index, QtCore.Qt.DisplayRole)))
+    # print "DATA EXTRACTED FROM TREE", data
+    root_index = model.getNode(index, root=True)
+    print "root_index is type():", type(root_index)
+    print root_index
+    print
+    print "root_index children:"
+    print "%r" % (root_index._children)
+    print
+    data2 = model.fetchData(root_index)
+    print "data2 is type():", type(data2)
+    print data2
+
 
 def add_node_subitem(tree=None):
     index = tree.selectedIndexes()[0]
@@ -2222,16 +2309,18 @@ def add_node_subitem(tree=None):
     # index = tree.selectedIndexes()[0]
     # print "index>>", index
     # tree.model().removeRow(index.row(), parent=index.parent())
-def edit_node(tree=None, value=None, col=None, window=None, model=None):    
+
+
+def edit_node(tree=None, value=None, col=None, window=None, model=None):
     if col == 0:
-        price = window.doubleSpinBox_7.value()  
+        price = window.doubleSpinBox_7.value()
 
     elif col == 1:
         price = window.doubleSpinBox_7.value()
 
     elif col == 2:
         price = window.doubleSpinBox_8.value()
-    
+
     print
     print "price fetched from SpinBox>>", price
     print
@@ -2248,7 +2337,6 @@ def edit_node(tree=None, value=None, col=None, window=None, model=None):
     tree.setVisible(True)
 
 
-
 if __name__ == '__main__':
 
     app = QtGui.QApplication(sys.argv)
@@ -2259,7 +2347,6 @@ if __name__ == '__main__':
     if not os.path.exists(DB):
         print "DB not found! Creating new DB."
         make_db()
-
 
     myDb = QtSql.QSqlDatabase.addDatabase("QSQLITE")
     myDb.setDatabaseName(DB)

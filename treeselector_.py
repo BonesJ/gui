@@ -111,7 +111,29 @@ class Node(object):
     def row(self):
         if self._parent is not None:
             return self._parent._children.index(self)
+    
+    def log_level(self, tabLevel=-1):
 
+        output = ""
+        tabLevel += 1
+        
+        for i in range(tabLevel):
+            output += "\t"
+        # print "before>>", self._name
+        if type(self._name) is not type("a"):
+            self._name=self._name.toString()
+            # print "entered"
+            # print "after>>", self._name
+
+        output += str(tabLevel) + self._name + "\n"
+        
+        for child in self._children:
+            output += child.log_level(tabLevel)
+        
+        tabLevel -= 1
+        output += "\n"
+        
+        return output
 
     def log(self, tabLevel=-1):
 
@@ -135,9 +157,12 @@ class Node(object):
         output += "\n"
         
         return output
+    #  uncomment to graphically tab separet different levels, need numbers to work
+    # def __repr__(self):
+    #     return str(self.log())
 
     def __repr__(self):
-        return str(self.log())
+        return str(self.log_level())
 
 
 class TransformNode(Node):
@@ -186,6 +211,16 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
 
     """INPUTS: QModelIndex"""
     """OUTPUT: int"""
+    def recursiveRowCount(self, parent):
+        
+        parentNode = self._rootNode
+        
+        return parentNode.childCount()
+
+
+
+    """INPUTS: QModelIndex"""
+    """OUTPUT: int"""
     def columnCount(self, parent):
         return 3
     
@@ -219,6 +254,10 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
                 if typeInfo == "CAMERA":
                     return QtGui.QIcon(QtGui.QPixmap(":/Camera.png"))
 
+    def fetchData(self, index):
+
+        node = index
+        return node.log_level()
 
 
     """INPUTS: QModelIndex, QVariant, int (flag)"""
@@ -301,8 +340,13 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
 
     """CUSTOM"""
     """INPUTS: QModelIndex"""
-    def getNode(self, index):
+    def getNode(self, index, root=None):
         if index.isValid():
+            
+            if (root is not None) and (root == True):
+                print "Fetching root node for output..."
+                return self._rootNode
+
             node = index.internalPointer()
             if node:
                 return node

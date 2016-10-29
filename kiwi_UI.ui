@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1100</width>
-    <height>973</height>
+    <width>688</width>
+    <height>535</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -228,7 +228,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>1</number>
       </property>
       <property name="iconSize">
        <size>
@@ -260,7 +260,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>802</width>
+             <width>464</width>
              <height>1011</height>
             </rect>
            </property>
@@ -1036,8 +1036,8 @@ QTabBar::tab:only-one {
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>819</width>
-             <height>816</height>
+             <width>790</width>
+             <height>506</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -2556,7 +2556,15 @@ QPushButton:!enabled {
        <attribute name="title">
         <string>MO-GUN</string>
        </attribute>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>516</width>
+          <height>208</height>
+         </rect>
+        </property>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -2729,7 +2737,7 @@ background-color: rgba(227, 238, 238,0);
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1100</width>
+     <width>688</width>
      <height>21</height>
     </rect>
    </property>
@@ -2833,7 +2841,26 @@ background-color: rgba(227, 238, 238,0);
         <property name="spacing">
          <number>5</number>
         </property>
-        <item row="2" column="2">
+        <item row="5" column="2">
+         <widget class="QLineEdit" name="lineEdit_3">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">text-decoration: line-through;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="3">
          <widget class="QToolButton" name="toolButton_4">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -2871,44 +2898,27 @@ background-color: rgba(227, 238, 238,0);
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="lineEdit_3">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_9">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QLabel{
-	color: rgb(227, 238, 238);
-	font: 75 10pt &quot;Gill Sans MT&quot;;
-	background-color: rgba(0,0,0,0);
-}</string>
+        <item row="5" column="0">
+         <widget class="QCheckBox" name="checkBox_6">
+          <property name="mouseTracking">
+           <bool>false</bool>
           </property>
           <property name="text">
-           <string>Add Modification</string>
+           <string/>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QToolButton" name="toolButton_3">
+        <item row="2" column="2">
+         <widget class="QComboBox" name="modifJobComboBox">
+          <item>
+           <property name="text">
+            <string>&lt;Job&gt;</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QToolButton" name="btnAddModif">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -2922,49 +2932,21 @@ background-color: rgba(227, 238, 238,0);
            </size>
           </property>
           <property name="styleSheet">
-           <string notr="true">QToolButton{
-	color: rgb(227, 238, 238);
-	font: 75 18pt &quot;Gill Sans MT&quot;;
-	background-color: rgba(0,0,0,0);
-}</string>
+           <string notr="true"/>
           </property>
           <property name="text">
            <string>+</string>
           </property>
-          <property name="popupMode">
-           <enum>QToolButton::DelayedPopup</enum>
-          </property>
-          <property name="toolButtonStyle">
-           <enum>Qt::ToolButtonTextOnly</enum>
-          </property>
-          <property name="autoRaise">
-           <bool>false</bool>
-          </property>
-          <property name="arrowType">
-           <enum>Qt::RightArrow</enum>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="4">
+         <widget class="QProgressBar" name="progressBar">
+          <property name="value">
+           <number>24</number>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QSpinBox" name="spinBox_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="buttonSymbols">
-           <enum>QAbstractSpinBox::NoButtons</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" rowspan="2">
+        <item row="7" column="2">
          <spacer name="verticalSpacer_3">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -2979,6 +2961,15 @@ background-color: rgba(227, 238, 238,0);
            </size>
           </property>
          </spacer>
+        </item>
+        <item row="1" column="0" colspan="4">
+         <widget class="QComboBox" name="modifClientComboBox">
+          <item>
+           <property name="text">
+            <string>&lt;Client&gt;</string>
+           </property>
+          </item>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -3076,8 +3067,6 @@ background-color: rgba(227, 238, 238,0);
   <tabstop>btnModif</tabstop>
   <tabstop>lineEdit_3</tabstop>
   <tabstop>toolButton_4</tabstop>
-  <tabstop>toolButton_3</tabstop>
-  <tabstop>spinBox_2</tabstop>
  </tabstops>
  <resources>
   <include location="themes/res.qrc"/>
