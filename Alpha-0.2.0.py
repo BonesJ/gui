@@ -9,6 +9,7 @@ from itertools import cycle
 from functools import partial
 import compiled_resources
 import treeselector_
+from datetime import datetime, date
 
 # import treeviewmodel
 
@@ -243,8 +244,10 @@ class MyWindow(QtGui.QMainWindow):
             tab='client', fields=info2grab, mode='new',
             model=model, tabview=self.clientsTable
             """
-            cols_i = [0, 1, 2, 3, 4, 7]
-            info2grab = ["Nom", "Societe", "Telephone", "Email"]
+            cols_i = [0, 1, 2, 3, 4, 5, 6, 8]
+
+            info2grab = ["Organisation", "Nom", "Prenom", "Tel Mobile",
+            "Tel Fixe", "Email"]
             input_window(tab='client', fields=info2grab,
                          mode='new', model=model,
                          tabview=self.clientsTable, cols_to_fetch=cols_i)
@@ -257,9 +260,10 @@ class MyWindow(QtGui.QMainWindow):
             model=model, tabview=self.clientsTable
             """
             # cols index in tableview to fetch, 0=key, 2="Nom" etc...
-            cols_i = [0, 1, 2, 3, 4, 7]
+            cols_i = [0, 1, 2, 3, 4, 5, 6, 8]
             # button names to create = column names in sqlite3
-            info2grab = ["Nom", "Societe", "Telephone", "Email"]
+            info2grab = ["Organisation", "Nom", "Prenom", "Tel Mobile",
+            "Tel Fixe", "Email"]
             input_window(tab='client', fields=info2grab,
                          mode='edit', model=model,
                          tabview=self.clientsTable, cols_to_fetch=cols_i)
@@ -323,7 +327,7 @@ class MyWindow(QtGui.QMainWindow):
                 self.modifJobComboBox.setEnabled(False)
             else:
                 self.modifJobComboBox.setEnabled(True)
-
+            print "passing>> %s in displayfor" % forclient
             args = partial(update_combo_from_db,
                 combo=self.modifJobComboBox,
                 column="Code Client", table="job",
@@ -388,6 +392,28 @@ class MyWindow(QtGui.QMainWindow):
             #    else:
             #        continue
 
+        def clients_sel_changed():
+                data = tabView_sel_changed(tabview=self.clientsTable)
+
+                # index = self.clientsTable.selectedIndexes()[0]
+                # print('Row %d is selected' % index.row())
+                # list_of_indices = self.clientsTable.selectedIndexes()
+                # # print "Lst of indices:", list_of_indices
+                # o = 0
+                # for index in sorted(list_of_indices):
+                #     print "Column ", index.column()
+                #     id_us = str(self.clientsTable.model().data(index).toString())
+                #     print "Data :", id_us
+                print data
+                self.label_55.setText(data[1])
+                self.label_56.setText(data[2]+" "+data[3]+" "+data[4])
+                # set below to labels of facturation total, facturation Payee etc
+
+                # self.label_55.setText(data[1])
+                # self.label_55.setText(data[1])
+                # self.label_55.setText(data[1])
+
+
     # ===============================================APPLICATION INITIALISATION
 
         # In here configure applicationwide settings(theme, dock, menubar etc.)
@@ -413,6 +439,9 @@ class MyWindow(QtGui.QMainWindow):
         self.modifClientComboBox.highlighted.connect(args)
         self.modifClientComboBox.currentIndexChanged.connect(
             fetch_jobs_from_client)
+
+        tree_selector = init_tree_view()
+        self.gridLayout_19.addWidget(tree_selector, 1, 0, 1, 2)
 
     # =============================================================FACTURES TAB
 
@@ -448,6 +477,9 @@ class MyWindow(QtGui.QMainWindow):
         self.clientsTable.setShowGrid(False)
         self.clientsTable.setSortingEnabled(True)
         self.clientsTable.setVisible(True)
+
+        selectionModel = self.clientsTable.selectionModel()
+        selectionModel.selectionChanged.connect(clients_sel_changed)
 
         # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         # Jobs groupbox Managment
@@ -590,27 +622,29 @@ def make_db():
     cursor.execute("""
         CREATE TABLE client (
         "key" INTEGER PRIMARY KEY AUTOINCREMENT,
-        "Code Client" VARCHAR(30),
-        "Nom" VARCHAR(30),
-        "Societe" VARCHAR(30),
-        "Telephone" VARCHAR(30),
-        "Factures Payees" INTEGER(1),
-        "Factures Recues" INTEGER(1),
-        "Email" VARCHAR(40),
+        "Code Client" TEXT,
+        "Organisation" TEXT,
+        "Nom" TEXT,
+        "Prenom" TEXT,
+        "Tel Mobile" TEXT,
+        "Tel Fixe" TEXT,
+        "Factures Payees" TEXT,
+        "Email" TEXT,
+        "Solde Compte" TEXT,
         UNIQUE ("key") );""")
 
     # Populate db with some data ...
     cursor = connection.cursor()
     staff_data = [
-        (55, "James", "kaloumba", "021 69 74 49", 5, 8, "ceemss.saiatgmail"),
-        (7, "WilliamNOT", "sadoomba", "021 69 74 49", 5, 8, "cf.saiatgmail"),
-        (7, "William", "badoomba", "021 69 74 49", 5, 8, "ceems.saiatgmail"),
-        (7, "Williwas", "frambounda", "021 69 74 49", 5, 8, "ceemssatgmail")
+        (55, "kaloumba", "James", "Bond", "05 52 44 04 77", "021 69 74 49", "5/7", "ceemss.saiatgmail", "DA 150 000.00" ),
+        (55, "sadoomba", "Doctor", "Pepper", "05 52 44 04 77", "021 69 74 49", "5/7", "ceemss.saiatgmail", "DA 150 000.00" ),
+        (55, "badoomba", "Coca", "Cola", "05 52 44 04 77", "021 69 74 49", "5/7", "ceemss.saiatgmail", "DA 150 000.00" ),
+        (55, "frambounda", "Arya", "Stark", "05 52 44 04 77", "021 69 74 49", "5/7", "ceemss.saiatgmail", "DA 150 000.00" ),
     ]
     cursor.executemany("""
-        INSERT INTO client ("key","Code Client", "Nom", "Societe", "Telephone",
-            "Factures Payees", "Factures Recues", "Email")
-        VALUES(NULL,?,?,?,?,?,?,?)""", staff_data)
+        INSERT INTO client ("key","Code Client", "Organisation", "Nom", "Prenom", "Tel Mobile",
+            "Tel Fixe", "Factures Payees", "Email", "Solde Compte")
+        VALUES(NULL,?,?,?,?,?,?,?,?,?)""", staff_data)
     connection.commit()
 
     # Fetch entire table of clients and store in `result_all`, and fetch
@@ -800,7 +834,7 @@ def make_db():
         Unit_Price VARCHAR,
         Subtotal VARCHAR,
         Invoice_id INTEGER,
-        FOREIGN KEY (invoice_id) REFERENCES bill (key)
+        FOREIGN KEY (Invoice_id) REFERENCES bill (key)
         );""")
 
     invoice_data = [("Couverture Evenement", "15/10/2016", "15/10/2016",
@@ -840,6 +874,17 @@ def make_db():
         VALUES(NULL,?,?,?,?,?,?,?,?)""", invoice_data)
     connection.commit()
 
+    # Modification table that stores modification items to be linked with job
+    cursor.execute("""
+        CREATE TABLE debrief (
+        key INTEGER PRIMARY KEY AUTOINCREMENT,
+        Description VARCHAR,
+        [Date_Created] TIMESTAMP,
+        [Date_Done] TIMESTAMP,
+        Parent INTEGER,
+        FOREIGN KEY (Parent) REFERENCES job (key)
+        );""")
+
     connection.close()
 
 
@@ -864,36 +909,53 @@ def del_selected(tabview, model, table=None):
 
     if result == QtGui.QMessageBox.Ok:
         if table == "job":
-            # remove orders taoble sql and update
-            L = tabview.selectionModel().selectedRows()
-            for index in sorted(L):
-                print('Row %d is selected' % index.row())
+            try:
+                # remove orders taoble sql and update
+                L = tabview.selectionModel().selectedRows()
+                for index in sorted(L):
+                    print('Row %d is selected' % index.row())
 
-            index = tabview.selectedIndexes()[1]
-            id_us = str(tabview.model().data(index).toString())
-            print("code : " + id_us)
-        print 'Yes.'
+                index = tabview.selectedIndexes()[1]
+                id_us = str(tabview.model().data(index).toString())
+                print "code : ", id_us
+                cid = str(id_us[4])
+                jid = str(id_us[8])
 
-        cid = str(id_us[4])
-        jid = str(id_us[8])
+                print "cid: ", cid
+                print "jid: ", jid
+                print 'Yes.'
+                # Delete link from orders table
+                connection = sqlite3.connect(DB)
+                cursor = connection.cursor()
+                # id_us =  "\"" + id_us + "\""
+                # cursor.execute("DELETE FROM orders WHERE Code Job = '%s';"
+                #                % (id_us.strip()))
 
-        print "cid: ", cid
-        print "jid: ", jid
-        # Delete link from orders table
-        connection = sqlite3.connect(DB)
-        cursor = connection.cursor()
-        # id_us =  "\"" + id_us + "\""
-        # cursor.execute("DELETE FROM orders WHERE Code Job = '%s';"
-        #                % (id_us.strip()))
+                cursor.execute("""
+                        DELETE FROM orders
+                        WHERE "client_id" = '%s' AND "job_id" = '%s' """ % (cid, jid))
+                connection.commit()
+                # UNCOMMENT BELOW TO DEBUG
+                # cursor.execute("""SELECT * FROM orders""")
+                # result_orders = cursor.fetchall()
+                connection.close()
+            except (IndexError, ValueError):
 
-        cursor.execute("""
-                DELETE FROM orders
-                WHERE "client_id" = '%s' AND "job_id" = '%s' """ % (cid, jid))
-        connection.commit()
-        # UNCOMMENT BELOW TO DEBUG
-        # cursor.execute("""SELECT * FROM orders""")
-        # result_orders = cursor.fetchall()
-        connection.close()
+                sel_msg = QtGui.QMessageBox()
+                sel_msg.setIcon(QtGui.QMessageBox.Information)
+
+                sel_msg.setText("Oops! Selection Error:")
+                sel_msg.setInformativeText("To delete a client you must select a row.")
+                sel_msg.setWindowTitle("Input Error")
+
+                sel_msg.setStandardButtons(QtGui.QMessageBox.Ok |
+                                       QtGui.QMessageBox.Cancel)
+                set_style(sel_msg)
+                sel_msg.exec_()
+                return
+
+
+
         # # UNCOMMENT SECTION FOR DEBUGGING /START/
         # print "result orders after deletion:"
         # for r in result_orders:
@@ -921,9 +983,9 @@ def update_combo_from_db(combo, column, table, displayfor=None):
 
     """
     # UNCOMMENT SECTION FOR DEBUGGING /START/
-    # print "\n"
-    # print "-" * 80
-    # print "START OF FUNCTION update combo client"
+    print "\n"
+    print "-" * 80
+    print "START OF FUNCTION update combo client"
     # UNCOMMENT SECTION FOR DEBUGGING /END/
     if displayfor is not None:
         print "displayfor mode active>>", displayfor
@@ -940,7 +1002,7 @@ def update_combo_from_db(combo, column, table, displayfor=None):
     #     SELECT DISTINCT "{col}" FROM "{tab}" """.format(col=column, tab=table))
     # result_key = cursor.fetchall()
 
-    # cursor.execute("""SELECT DISTINCT "Societe" FROM client""")
+    # cursor.execute("""SELECT DISTINCT "Organisation" FROM client""")
     # result_company = cursor.fetchall()
 
     cursor.execute("""SELECT * FROM client""")
@@ -955,6 +1017,10 @@ def update_combo_from_db(combo, column, table, displayfor=None):
                 .format(k=displayfor[:3]))
         result_displayfor = cursor.fetchall()
         print result_displayfor
+        combo.clear()
+        combo.addItem("<Job to debrief>")
+
+
     connection.close()
 
     # UNCOMMENT SECTION FOR DEBUGGING /START/
@@ -976,7 +1042,7 @@ def update_combo_from_db(combo, column, table, displayfor=None):
         # print "combined>>>", combined
     # print "id + company:", id_and_comp #[x[1] for x in result_everything],
     # UNCOMMENT SECTION FOR DEBUGGING /END/
-    print
+    print id_and_comp
     for p in id_and_comp:
         # print "p>>>", p
         if p is not None:
@@ -1009,7 +1075,24 @@ def update_combo_from_db(combo, column, table, displayfor=None):
                 # tup = [item for item in result_all if p in item]
                 # print "code:", tup
                 # # UNCOMMENT SECTION FOR DEBUGGING /END/
-                combo.addItem(p)
+
+                # When in `displayfor` mode add only relevant jobs to combo, else
+                # add them all
+                if displayfor != "<Client>" and displayfor is not None:
+
+                    print "Should only display jobs for client >> %r" % displayfor[:3]
+                    print "p is >>", p
+                    # p_split = p.split()
+                    p_split = p[2:5]
+                    p_split = p_split.strip()
+                    print "p split is >> %r" % p_split
+                    print "job matches client", p_split == displayfor[:3]
+                    if p_split == displayfor[:3]:
+                        print "MATCH Added item to Combo modif!"
+                        combo.addItem(p)
+
+                else:
+                    combo.addItem(p)
                 # # UNCOMMENT SECTION FOR DEBUGGING /START/
                 # print "ADDED ITEM %s TO COMBO BOX" % p
                 # print "All items:", allitems
@@ -1017,9 +1100,9 @@ def update_combo_from_db(combo, column, table, displayfor=None):
     # print "All items:", allitems
 
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
-    # print "END OF FUNCTION update combo client"
-    # print "-" * 80
-    # print "\n"
+    print "END OF FUNCTION update combo client"
+    print "-" * 80
+    print "\n"
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
 
@@ -1093,8 +1176,9 @@ def input_window(tab=None, model=None, combo=None, mode=None,
                 return
         if tab == "client":
             # add stuff here if client
-            col_dict["Factures Payees"] = 0
-            col_dict["Factures Recues"] = 0
+            col_dict["Factures Payees"] = "0/0"
+            col_dict["Solde Compte"] = "DA 0.00"
+            #col_dict["Factures Recues"] = 0
         # # UNCOMMENT SECTION FOR DEBUGGING /START/
         # print "dict passed to add_to_db_v2: "
         # print col_dict
@@ -1250,7 +1334,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
             # cols_to_fetch = [1, 2, 3, 4, 7]
             # print cols_to_fetch
             for k in cols_to_fetch:
-                # print "k:", k
+                print "k:", k
                 i = tabview.selectedIndexes()[k]
                 existing_data[k] = str(tabview.model().data(i).toString())
                 if (k == 0):
@@ -1259,7 +1343,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
                     # key2read = "\'" + str(key2read) + "\'"
                     # print "key2read: ", key2read
                 # print "Existing data: ", existing_data[k]
-            # print existing_data
+            print existing_data
 
         except (IndexError, ValueError):
 
@@ -1278,16 +1362,15 @@ def input_window(tab=None, model=None, combo=None, mode=None,
         # small section to format window according to table being acessed
         if (tab == 'client'):
             code = "00" + str(existing_data[0])
-            text += ' Client'
             what = ' Client'
             window_info = "Client Information Input Window"
 
         elif (tab == 'job') or (tab == 'bill'):
             code = str(existing_data[1])
-            text += ' Job'
             what = 'Job'
             window_info = "Job Information Input Window"
         else:
+            code = "---not yet created---"
             return
 
     win = QtGui.QDialog()
@@ -1302,9 +1385,9 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     label.setFont(QtGui.QFont('', 12))
     label.setAlignment(QtCore.Qt.AlignCenter)
     layout.addWidget(label, 0, 0, 1, 2)
+
     if (tab == 'client'):
-        cols_to_fetch = cols_to_fetch[1:]
-        code = "---not yet created---"
+        cols_to_fetch = cols_to_fetch[2:]
         what = " Client"
         text += what
         # i is rwos to offset (number of rows before start putting rows
@@ -1314,18 +1397,18 @@ def input_window(tab=None, model=None, combo=None, mode=None,
         window_info = "Information Input Window"
     elif (tab == 'job'):
         cols_to_fetch = cols_to_fetch[1:]
-        code = "---not yet created---"
         what = " Job"
         text += what
         # i is rwos to offset (number of rows before start putting rows
         # of buttons and qlineedits, currently == 3 because two labels and
         # a widget come before button fields...
         #
-
+        i = 3
         tree_selector = init_tree_view()
         layout.addWidget(tree_selector, 2, 0, 1, 2)
 
     else:
+        print tab, mode
         raise NotImplementedError
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
     # for k in cols_to_fetch:
@@ -1342,6 +1425,7 @@ def input_window(tab=None, model=None, combo=None, mode=None,
     for key in fields:
         if key != ("Code Job" or "Code Client"):
             buttons[key] = QtGui.QPushButton(key)
+            print existing_data[input_map[key]]
             db_data = existing_data[input_map[key]]
             lines[key] = QtGui.QLineEdit(db_data)
             lines[key].setReadOnly(True)
@@ -2080,7 +2164,7 @@ def init_tree_view():
     #     "key" INTEGER PRIMARY KEY AUTOINCREMENT,
     #     "Code Client" VARCHAR(30),
     #     "Nom" VARCHAR(30),
-    #     "Societe" VARCHAR(30),
+    #     "Organisation" VARCHAR(30),
     #     "Telephone" VARCHAR(30),
     #     "Factures Payees" INTEGER(1),
     #     "Factures Recues" INTEGER(1),
@@ -2336,6 +2420,21 @@ def edit_node(tree=None, value=None, col=None, window=None, model=None):
     tree.setVisible(False)
     tree.setVisible(True)
 
+
+def tabView_sel_changed(tabview=None):
+    index = tabview.selectedIndexes()[0]
+    print('Row %d is selected' % index.row())
+    list_of_indices = tabview.selectedIndexes()
+    # print "Lst of indices:", list_of_indices
+    list_of_data = []
+    for index in sorted(list_of_indices):
+
+        # print "Column ", index.column()
+        data = str(tabview.model().data(index).toString())
+        # print "Data :", data
+        list_of_data.append(data)
+
+    return list_of_data
 
 if __name__ == '__main__':
 
