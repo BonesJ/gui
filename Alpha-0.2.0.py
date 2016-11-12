@@ -22,7 +22,7 @@ STYLES = ['blender_mod_btns.css', 'blank.css']
 # , 'blender.css', 'dark-blue.css', 'dark-green.css','dark-orange.css',
 # 'light-blue.css', 'light-green.css','light-orange.css']
 STYLE = cycle(STYLES)
-MODIF_LINE_COUNT = {"001": 1, "002": 5}
+MODIF_LINE_COUNT = {"001": 5, "002": 3}
 
 #  max line 2423
 
@@ -37,14 +37,17 @@ class MyWindow(QtGui.QMainWindow):
     WF      Wrapper function
     """
 
-    def __init__(self, model, model2, model3):
+    def __init__(self, model, model2, model3, parent=None):
         """Init taking all models of app. Add more arguments for more models.
 
         At present time we take in 3 models used for the tableviews
         """
-        super(MyWindow, self).__init__()
+
+        # ,QtCore.Qt.FramelessWindowHint
+        super(MyWindow, self).__init__(parent,QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowMinimizeButtonHint|QtCore.Qt.WindowMaximizeButtonHint)
         # self.setupUi(self)
     # ===========================================================FUNCTIONS DEFS
+        # self.setMask(boundingRect())
 
         def del_selected_jobs():
             """WF for jobs data using function `del_selected()`."""
@@ -237,6 +240,11 @@ class MyWindow(QtGui.QMainWindow):
                 self.setStyleSheet(QtCore.QVariant(css.readAll()).toString())
             css.close()
 
+        def close_application():
+            QtGui.QApplication.exit()
+            print 'Application closed successfully'
+
+
         def new_client():
             """WF for `input_window()` to create new client.
 
@@ -327,14 +335,94 @@ class MyWindow(QtGui.QMainWindow):
                 self.modifJobComboBox.setEnabled(False)
             else:
                 self.modifJobComboBox.setEnabled(True)
-            print "passing>> %s in displayfor" % forclient
-            args = partial(update_combo_from_db,
-                combo=self.modifJobComboBox,
-                column="Code Client", table="job",
-                displayfor=forclient)
-            self.modifJobComboBox.highlighted.connect(args)
+                print "passing>> %s in displayfor" % forclient
+
+
+                update_combo_from_db(
+                    combo=self.modifJobComboBox,
+                    column="Code Client", table="job",
+                    displayfor=forclient)
+
+                # args = partial(update_combo_from_db,
+                #     combo=self.modifJobComboBox,
+                #     column="Code Client", table="job",
+                #     displayfor=forclient)
+
+                # self.modifJobComboBox.highlighted.connect(args)
+        def style_modif_close_btn(button):
+            button.setStyleSheet("""
+            QPushButton {
+                color: #FFFFFF;
+                font: 9pt bold "Roboto" ;
+                text-align: center;
+                background-color: rgba(0,0,0,0);
+
+                border: 1px solid black;
+                border-radius: 2px;
+                min-height: 0px; /* same as QTabBar QPushButton min-width */
+                min-width: 0px;
+                width: 10px;
+                height: 12px;
+            }
+
+
+            QPushButton:hover {
+                /*border: 1px solid white;*/
+                background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #1565C0, stop:1 #1565C0);
+                background-color: rgba(255,255,255,50);
+                background-color:rgb(100, 0, 0);
+                border-style: inset;
+                border-color:rgb(100, 0, 0);
+
+
+            }
+
+            QPushButton:disabled,
+            QPushButton:disabled:checked {
+                color: #4c4c4c;
+                background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #878787, stop:1 #7c7c7c);
+                border-color: #5b5b5b;
+            }
+
+            QPushButton:pressed {
+                color: white;
+                background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #1565C0, stop:1 #0D47A1);
+                background-color:rgb(200, 0, 0);
+            }
+            """)
+
+        def fetch_modif_todo():
+            # lookup debrief table and select chosen job to display modif
+            print "Fetching modifs for job: "
+            modif_todo_job_id = str(self.modifJobComboBox.currentText())
+            print modif_todo_job_id
+
+
+
+
+            i = 4
+            closebuttons = {}
+            lines = {}
+            checkboxes = {}
+
+            for modif in range(MODIF_LINE_COUNT["001"]):
+                print "modif lineto be added", modif
+                checkboxes[modif] = QtGui.QCheckBox()
+                # checkboxes[modif].toggled.connect(strikeout)
+                lines[modif] = QtGui.QLineEdit()
+                closebuttons[modif] = QtGui.QPushButton('X')
+                style_modif_close_btn(closebuttons[modif])
+
+                self.gridLayout_4.addWidget(checkboxes[modif], i, 0, 1, 1)
+                self.gridLayout_4.addWidget(lines[modif], i, 1, 1, 2)
+                self.gridLayout_4.addWidget(closebuttons[modif], i, 3, 1, 1)
+                i +=1
+
 
         def add_modif_line():
+            # insert row of checkbox, lineedit, and 'x' close
+            # insert row into debrief table with timestamp and ischecked? status
+
             def strikeout(self):
                 if checkboxes["001"].isChecked():
                     lines["001"].setStyleSheet("""
@@ -358,20 +446,28 @@ class MyWindow(QtGui.QMainWindow):
 
             # input_map = dict(zip(fields, cols_to_fetch))
             # print "input map", input_map
+
+            # Fetch all modifs for current job
+            #   create rows in dockedwidget
+            #   check status of modif
+            # Update records
             MODIF_LINE_COUNT["001"] += 1
             closebuttons = {}
             lines = {}
             checkboxes = {}
 
-            i = 5
-            checkboxes["001"] = QtGui.QCheckBox()
-            checkboxes["001"].toggled.connect(strikeout)
-            lines["001"] = QtGui.QLineEdit()
-            closebuttons["001"] = QtGui.QToolButton()
+            # i = 5
+            # for modif in range(MODIF_LINE_COUNT["001"]):
+            #     print "modif lineto be added", modif
+            #     checkboxes[modif] = QtGui.QCheckBox()
+            #     checkboxes[modif].toggled.connect(strikeout)
+            #     lines[modif] = QtGui.QLineEdit()
+            #     closebuttons[modif] = QtGui.QPushButton()
 
-            self.gridLayout_4.addWidget(checkboxes["001"], i, 0, 1, 1)
-            self.gridLayout_4.addWidget(lines["001"], i, 1, 1, 2)
-            self.gridLayout_4.addWidget(closebuttons["001"], i, 3, 1, 1)
+            #     self.gridLayout_4.addWidget(checkboxes[modif], i, 0, 1, 1)
+            #     self.gridLayout_4.addWidget(lines[modif], i, 1, 1, 2)
+            #     self.gridLayout_4.addWidget(closebuttons[modif], i, 3, 1, 1)
+            #     i +=1
 
             # # create buttons
             # for key in fields:
@@ -413,6 +509,18 @@ class MyWindow(QtGui.QMainWindow):
                 # self.label_55.setText(data[1])
                 # self.label_55.setText(data[1])
 
+        def save_cloud():
+            self.statusBar.showMessage("Telechargement vers un serveur, veuillez patienter...", 0)
+            import upload
+            upload.main()
+            self.statusBar.showMessage("Done uploading file", 4000)
+
+        def save_local():
+            # Implement a save local database
+            pass
+
+        def minimise_main_window():
+            self.showMinimized()
 
     # ===============================================APPLICATION INITIALISATION
 
@@ -422,13 +530,23 @@ class MyWindow(QtGui.QMainWindow):
         uic.loadUi('kiwi_UI.ui', self)
         change_theme()
 
+        label_copyright = QtGui.QLabel('Copyright P2 Labs. Algeria 2016')
+
+        label_copyright.setStyleSheet(
+                                    "QLabel { background-color: rgba(255, 255, 255, 0); border-style: inset; border-width: 1px; border-radius: 10px; border-color: beige; font: bold 8px;}")
+        self.statusBar.addPermanentWidget(label_copyright)
+
         # close dock widget by default
         self.dockWidget.close()
         self.btnModif.clicked.connect(dock_toggle)
+        self.btnSaveCloud.clicked.connect(save_cloud)
+        self.btnSaveLocal.clicked.connect(save_local)
 
         # menubar bar
         self.actionCycle_Theme.triggered.connect(change_theme)
         self.actionLoad.triggered.connect(getfiles)
+        self.actionQuitter_Application.triggered.connect(close_application)
+        self.actionMinimiser_la_Fenetre.triggered.connect(minimise_main_window)
     # ========================================================MODIFICATION DOCK
         self.btnAddModif.clicked.connect(add_modif_line)
 
@@ -440,7 +558,11 @@ class MyWindow(QtGui.QMainWindow):
         self.modifClientComboBox.currentIndexChanged.connect(
             fetch_jobs_from_client)
 
-        tree_selector = init_tree_view()
+        self.modifJobComboBox.activated.connect(fetch_modif_todo)
+        # self.modifJobComboBox.currentIndexChanged.connect(fetch_modif_todo)
+
+        # Service proposes TAB, uses the edit class of ui widget
+        tree_selector = init_tree_view(mode='edit')
         self.gridLayout_19.addWidget(tree_selector, 1, 0, 1, 2)
 
     # =============================================================FACTURES TAB
@@ -560,6 +682,15 @@ class MyWindow(QtGui.QMainWindow):
 
         self.show()
 
+    def mousePressEvent(self, event):
+        self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        x = event.globalX()
+        y = event.globalY()
+        x_w = self.offset.x()
+        y_w = self.offset.y()
+        self.move(x - x_w, y - y_w)
 
 class MyModel(QtSql.QSqlTableModel):
     """Load model for DB manipulation using forms and QTableview."""
@@ -881,7 +1012,7 @@ def make_db():
         Description VARCHAR,
         [Date_Created] TIMESTAMP,
         [Date_Done] TIMESTAMP,
-        Parent INTEGER,
+        Parent TEXT,
         FOREIGN KEY (Parent) REFERENCES job (key)
         );""")
 
@@ -983,7 +1114,7 @@ def update_combo_from_db(combo, column, table, displayfor=None):
 
     """
     # UNCOMMENT SECTION FOR DEBUGGING /START/
-    print "\n"
+    # print "\n"
     print "-" * 80
     print "START OF FUNCTION update combo client"
     # UNCOMMENT SECTION FOR DEBUGGING /END/
@@ -1012,13 +1143,13 @@ def update_combo_from_db(combo, column, table, displayfor=None):
     result_everything_job = cursor.fetchall()
 
     if displayfor != "<Client>" and displayfor is not None:
-        print "Print keys of jobs linked to client"
+        # print "Print keys of jobs linked to client"
         cursor.execute("""SELECT * FROM orders WHERE client_id = "{k}" """
                 .format(k=displayfor[:3]))
         result_displayfor = cursor.fetchall()
-        print result_displayfor
+        # print result_displayfor
         combo.clear()
-        combo.addItem("<Job to debrief>")
+        combo.addItem("<Projet a debriefer>")
 
 
     connection.close()
@@ -1042,7 +1173,7 @@ def update_combo_from_db(combo, column, table, displayfor=None):
         # print "combined>>>", combined
     # print "id + company:", id_and_comp #[x[1] for x in result_everything],
     # UNCOMMENT SECTION FOR DEBUGGING /END/
-    print id_and_comp
+    # print id_and_comp
     for p in id_and_comp:
         # print "p>>>", p
         if p is not None:
@@ -1080,15 +1211,15 @@ def update_combo_from_db(combo, column, table, displayfor=None):
                 # add them all
                 if displayfor != "<Client>" and displayfor is not None:
 
-                    print "Should only display jobs for client >> %r" % displayfor[:3]
-                    print "p is >>", p
-                    # p_split = p.split()
+                    # print "Should only display jobs for client >> %r" % displayfor[:3]
+                    # print "p is >>", p
+
                     p_split = p[2:5]
                     p_split = p_split.strip()
-                    print "p split is >> %r" % p_split
-                    print "job matches client", p_split == displayfor[:3]
+                    # print "p split is >> %r" % p_split
+                    # print "job matches client", p_split == displayfor[:3]
                     if p_split == displayfor[:3]:
-                        print "MATCH Added item to Combo modif!"
+                        # print "MATCH Added item to Combo modif!"
                         combo.addItem(p)
 
                 else:
@@ -1102,7 +1233,7 @@ def update_combo_from_db(combo, column, table, displayfor=None):
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
     print "END OF FUNCTION update combo client"
     print "-" * 80
-    print "\n"
+    # print "\n"
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
 
@@ -2127,11 +2258,8 @@ def generate_latex(inv_data=None, doc=None, inv_items=None):
         print "Error in generate_latex(inv_data, doc, inv_items)"
 
 
-def init_tree_view():
+def init_tree_view(mode=None):
     """Function to initialise the treeView found in home window."""
-    reload(treeselector_)
-    tree_selector = treeselector_.Ui_()
-
     # if table in db does not exist, pop up window showing treeview
     # to allow user an initia description of their products and Services
     # as a hierarchical tree. Store thin in db
@@ -2171,6 +2299,15 @@ def init_tree_view():
     #     "Email" VARCHAR(40),
     #     UNIQUE ("key") )
 
+    reload(treeselector_)
+
+    if mode == 'edit':
+        tree_selector = treeselector_.Ui_()
+        print 'created edit tree '
+    else:
+        tree_selector = treeselector_.Ui_layoutWidget()
+        print 'created selection tree only'
+
     # need a function that maps sqlite table to  following lines
     rootNode   = treeselector_.Node("Products")
     childNode0 = treeselector_.Node("Services", rootNode)
@@ -2182,24 +2319,26 @@ def init_tree_view():
 
     # print rootNode
     product_services_model = treeselector_.SceneGraphModel(rootNode)
-
     tree_selector.productStructView.setModel(product_services_model)
     tree = tree_selector.productStructView
-    tree_selector.pushButton_18.clicked.connect(partial(del_node, tree))
-    tree_selector.pushButton_16.clicked.connect(partial(add_node_item, tree))
-    tree_selector.pushButton_17.clicked.connect(partial(add_node_subitem, tree))
 
-    unit_price = tree_selector.doubleSpinBox_7.value()
+    if mode == 'edit':
 
-    tree_selector.btnEdit1.clicked.connect(partial(edit_node,tree,
-                                                   unit_price, 1,
-                                                   tree_selector,
-                                                   product_services_model))
+        tree_selector.pushButton_18.clicked.connect(partial(del_node, tree))
+        tree_selector.pushButton_16.clicked.connect(partial(add_node_item, tree))
+        tree_selector.pushButton_17.clicked.connect(partial(add_node_subitem, tree))
 
-    tree_selector.btnEdit2.clicked.connect(partial(edit_node, tree,
-                                                   unit_price, 2,
-                                                   tree_selector,
-                                                   product_services_model))
+        unit_price = tree_selector.doubleSpinBox_7.value()
+
+        tree_selector.btnEdit1.clicked.connect(partial(edit_node,tree,
+                                                       unit_price, 1,
+                                                       tree_selector,
+                                                       product_services_model))
+
+        tree_selector.btnEdit2.clicked.connect(partial(edit_node, tree,
+                                                       unit_price, 2,
+                                                       tree_selector,
+                                                       product_services_model))
 
     print "\n<<Successfully Added Model to Tree selector>>\n"
 
@@ -2387,7 +2526,8 @@ def add_node_item(tree=None):
 def add_node_subitem(tree=None):
     index = tree.selectedIndexes()[0]
     print "index at subitem>>", index
-    tree.model().insertRow(index.row(), parent=index)
+
+    tree.model().insertRows(0, index.row()+1, parent=index)
     # tree.model().insertRows(index.row()+1, 1, parent=index)
 
     # index = tree.selectedIndexes()[0]
@@ -2441,6 +2581,7 @@ if __name__ == '__main__':
     app = QtGui.QApplication(sys.argv)
     # app = QtGui.QApplication.instance()
     app.setStyle("plastique")
+    # app.setMask()
     # set_style(app)
 
     if not os.path.exists(DB):
@@ -2461,4 +2602,7 @@ if __name__ == '__main__':
     # app.setStyleSheet('blender_mod_btns.css')
 
     window = MyWindow(model, model2, model3)
+
+    QtGui.QSizeGrip(window)
+
     sys.exit(app.exec_())

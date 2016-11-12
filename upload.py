@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 from __future__ import print_function
 
 import os
@@ -138,10 +138,52 @@ def archive_directory(dir_path):
     return archive_path
 
 
-def main():
-    file_list_file_path = "file_list.json"
+def update_json_file():
+    from shutil import copyfile
+    import datetime
 
-    in_file = open(file_list_file_path)
+    now = str(datetime.datetime.now())
+    print('Date now: %s' % now)
+    now = now.replace(":", "-")
+    now = now.replace(" ", "-")
+    now = now.replace(".", "-")
+
+    print('Date now replaced: %s' % now)
+
+    outfile = "Alpha" + now + ".db"
+    print (outfile)
+    copyfile("Alpha.db", outfile)
+    jsonFile = open("file_list.json", "r")
+    data = json.load(jsonFile)
+    jsonFile.close()
+
+    tmp = data[0]["path"]
+    data[0]["path"] = outfile
+
+    jsonFile = open("file_list_timestamped.json", "w+")
+    jsonFile.write(json.dumps(data))
+    jsonFile.close()
+    return outfile
+    # with open("file_list.json", "r+") as jsonFile:
+
+    #     data = json.load(jsonFile)
+
+    #     tmp = data[0]["path"]
+    #     data[0]["path"] = "Alpha.db"
+
+    #     jsonFile.seek(0)  # rewind
+    #     jsonFile.write(json.dumps(data))
+    #     jsonFile.truncate()
+
+
+def main():
+
+    print("Uploading files...")
+    outfile = update_json_file()
+
+    file_list_file_path = "file_list_timestamped.json"
+
+    in_file = open(file_list_file_path, "r")
     file_list = json.load(in_file)
     in_file.close()
 
@@ -172,7 +214,8 @@ def main():
     json.dump(file_list, out_file, indent=4, sort_keys=True)
     out_file.close()
 
-    print("Done!!")
+    print("Done uploading",input_file['path'] )
+    # os.remove(outfile)
 
 
 if __name__ == '__main__':
