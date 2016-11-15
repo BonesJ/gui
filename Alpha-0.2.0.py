@@ -27,6 +27,7 @@ MODIF_LINE_COUNT = {"001": 5, "002": 3}
 #  max line 2423
 
 
+
 class MyWindow(QtGui.QMainWindow):
     """Main class in which the app runs.
 
@@ -330,12 +331,12 @@ class MyWindow(QtGui.QMainWindow):
 
         def fetch_jobs_from_client():
             forclient = str(self.modifClientComboBox.currentText())
-            print "slected client :>:>", forclient
+            # print "slected client :>:>", forclient
             if forclient == "<Client>":
                 self.modifJobComboBox.setEnabled(False)
             else:
                 self.modifJobComboBox.setEnabled(True)
-                print "passing>> %s in displayfor" % forclient
+                # print "passing>> %s in displayfor" % forclient
 
 
                 update_combo_from_db(
@@ -392,13 +393,18 @@ class MyWindow(QtGui.QMainWindow):
             """)
 
         def fetch_modif_todo():
+            # clear layout of previous widgets
+            items = [(self.gridLayout_4.itemAt(i) for i in range(self.gridLayout_4.count()))]
+            print "items ", items
+            for w in items:
+                print "removing widget '", w, "' from layout"
+                self.gridLayout_4.removeWidget(w)
+
             # lookup debrief table and select chosen job to display modif
+            print
             print "Fetching modifs for job: "
             modif_todo_job_id = str(self.modifJobComboBox.currentText())
             print modif_todo_job_id
-
-
-
 
             i = 4
             closebuttons = {}
@@ -406,7 +412,7 @@ class MyWindow(QtGui.QMainWindow):
             checkboxes = {}
 
             for modif in range(MODIF_LINE_COUNT["001"]):
-                print "modif lineto be added", modif
+                print modif
                 checkboxes[modif] = QtGui.QCheckBox()
                 # checkboxes[modif].toggled.connect(strikeout)
                 lines[modif] = QtGui.QLineEdit()
@@ -417,7 +423,6 @@ class MyWindow(QtGui.QMainWindow):
                 self.gridLayout_4.addWidget(lines[modif], i, 1, 1, 2)
                 self.gridLayout_4.addWidget(closebuttons[modif], i, 3, 1, 1)
                 i +=1
-
 
         def add_modif_line():
             # insert row of checkbox, lineedit, and 'x' close
@@ -451,42 +456,263 @@ class MyWindow(QtGui.QMainWindow):
             #   create rows in dockedwidget
             #   check status of modif
             # Update records
-            MODIF_LINE_COUNT["001"] += 1
-            closebuttons = {}
-            lines = {}
-            checkboxes = {}
 
-            # i = 5
-            # for modif in range(MODIF_LINE_COUNT["001"]):
-            #     print "modif lineto be added", modif
-            #     checkboxes[modif] = QtGui.QCheckBox()
-            #     checkboxes[modif].toggled.connect(strikeout)
-            #     lines[modif] = QtGui.QLineEdit()
-            #     closebuttons[modif] = QtGui.QPushButton()
 
-            #     self.gridLayout_4.addWidget(checkboxes[modif], i, 0, 1, 1)
-            #     self.gridLayout_4.addWidget(lines[modif], i, 1, 1, 2)
-            #     self.gridLayout_4.addWidget(closebuttons[modif], i, 3, 1, 1)
-            #     i +=1
+        def fetch_modif_items(parent=None):
+            """Modification dock function for displaying edit boxes.
 
-            # # create buttons
-            # for key in fields:
-            #     if key != ("Code Job" or "Code Client"):
-            #         buttons[key] = QtGui.QPushButton(key)
-            #         db_data = existing_data[input_map[key]]
-            #         lines[key] = QtGui.QLineEdit(db_data)
-            #         lines[key].setReadOnly(True)
-            #         buttons[key].clicked.connect(
-            #             partial(print, "testest"))
-            #         # # UNCOMMENT SECTION FOR DEBUGGING /START/
-            #         # print buttons[key]
-            #         # print lines[key]
-            #         # # UNCOMMENT SECTION FOR DEBUGGING /END/
-            #         gridLayout_4.addWidget(buttons[key], i, 0)
-            #         gridLayout_4.addWidget(lines[key], i, 1)
-            #         i += 1
-            #    else:
-            #        continue
+            Fetches number of modifs stored in debrief table and for r rows pointed to
+            `parent`, it generates r rows of a QCheckBox, QLineEdit and QPushButton.
+            -At generation, it also checks for [Date_Done] in table debrief, and if
+            date exists, then set checkbox as checked and setstyle of lineedit
+            to strike-out.
+
+            Args:
+                parent (str): "Project_Code" from modifComboBox.
+            Returns:
+                True
+            """
+            def update_progressbar():
+                # Add progress barr percentage
+                checked_items = 0
+                all_items = 0
+
+                for item in checkboxes:
+                    all_items += 1
+                    if checkboxes[item].isChecked():
+                        checked_items += 1
+
+                # print "checked_items", checked_items, "/", all_items
+                if all_items == 0:
+                    self.progressBar.setValue(0)
+                else:
+                    value = float(checked_items) / float(all_items) * 100
+                    print "Modifications are %s%% complete" % (int(value))
+                    self.progressBar.setValue(int(value))
+
+                # Add progress barr percentage
+
+            def checkbox_state(btn=None, line=None, modif=None):
+                """Toggle done editing modif.
+
+                Toggles the QLineedit strikeout text. If striked out
+                then created time stamp for DTAE DONE in debrief table
+                ad insert value and Disable editing in Qlineedit.
+
+                Args:
+                    btn  (QCheckBox):  Reads state of check box.
+                    line (QLineEdit):  Sets text style as strikeout and
+                                       disables editing
+                Returns:
+                    True
+                """
+                if btn.isChecked() is True:
+                    line.setStyleSheet("""
+                       QLineEdit
+                       {
+                            text-decoration: line-through;
+                            background-color: rgba(0,255,0,85);
+                            color: white;
+                       }
+                       """)
+                    import datetime
+                    now = str(datetime.datetime.now())
+                    # print('Date now: %s' % now)
+                    # now = now.replace(":", "-")
+                    # now = now.replace(" ", "-")
+                    # now = now.replace(".", "-")
+                    print('DateDone replaced: %s' % now)
+                    date_completed = now
+
+                    # SQlite code to update date done to now
+                    connection = sqlite3.connect(DB)
+                    cursor = connection.cursor()
+                    cursor.execute("""
+                            UPDATE debrief SET "Date_Done" = "{date}"
+                            WHERE "key" = "{id}" """
+                                .format(id=modif[0], date=date_completed))
+                    connection.commit()
+                    connection.close()
+
+                    # insert code to timestamp strike trough even above
+                    line.setReadOnly(True)
+
+                    update_progressbar()
+                else:
+                    line.setStyleSheet("""
+                       QLineEdit
+                       {
+                            text-decoration: none;
+
+
+                       }
+                       """)
+
+                    # SQlite code to update date done to NULL
+                    date_completed = "NULL"
+
+                    connection = sqlite3.connect(DB)
+                    cursor = connection.cursor()
+                    cursor.execute("""
+                            UPDATE debrief SET "Date_Done" = "{date}"
+                            WHERE "key" = "{par_id}" """
+                                .format(par_id=modif[0], date=date_completed))
+                    connection.commit()
+                    connection.close()
+                    print('DateDone replaced: %s' % date_completed)
+
+                    line.setReadOnly(False)
+                    update_progressbar()
+
+            # clear layout of previous widgets
+            widgets = self.frame_7.children()
+            # print "WIDGETS", widgets
+            for widget in widgets:
+                # print widget.objectName(), "is of type: ", type(widget)
+                if type(widget) == type(self.gridLayout_21):
+                    print
+                    print "Found a layout, will not remove !"
+                    print
+                    continue
+                else:
+                    self.gridLayout_21.removeWidget(widget)
+                    widget.deleteLater()
+                    widget = None
+
+            # lookup debrief table and select chosen job to display modif
+            print
+            print "Fetching modifs for job: ",
+            modif_todo_job_id = str(self.modifJobComboBox.currentText())
+            parent = modif_todo_job_id[0:9]
+            print parent
+
+            if parent is None:
+                print 'No parent specified for fetch_modif_line()'
+
+            else:
+                # fetch records for select job
+                connection = sqlite3.connect(DB)
+                cursor = connection.cursor()
+                cursor.execute("""
+                        SELECT * FROM debrief
+                        WHERE "Parent" = "{par_id}" """.format(par_id=parent))
+
+                result_all = cursor.fetchall()
+                connection.commit()
+                connection.close()
+                # print result_all
+
+                # extract modifications count from result_all
+                modif_line_count = len(result_all)
+                print "Project ", "has ", modif_line_count, "modifs."
+
+                i = 0
+                closebuttons = {}
+                lines = {}
+                checkboxes = {}
+                row_count = 1
+
+                # Row factory
+                for modif in result_all:
+                    print modif
+                    id = modif[0]
+                    desc = modif[1]
+
+                    print id, desc
+
+                    numbering = QtGui.QLabel(str(row_count))
+                    checkboxes[id] = QtGui.QCheckBox()
+
+                    lines[id] = QtGui.QLineEdit(desc)
+                    closebuttons[id] = QtGui.QPushButton('X')
+                    style_modif_close_btn(closebuttons[id])
+
+                    self.gridLayout_21.addWidget(numbering, i, 0, 1, 1)
+                    self.gridLayout_21.addWidget(checkboxes[id], i, 1, 1, 1)
+                    self.gridLayout_21.addWidget(lines[id], i, 2, 1, 2)
+                    self.gridLayout_21.addWidget(closebuttons[id], i, 3, 1, 1)
+
+                    #  Fix widget and prevent it from stretching
+                    sizePolicy = QtGui.QSizePolicy(
+                        QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+                    sizePolicy.setHeightForWidth(True)
+                    numbering.setSizePolicy(sizePolicy)
+                    checkboxes[id].setSizePolicy(sizePolicy)
+                    closebuttons[id].setSizePolicy(sizePolicy)
+
+                    # connect checkbox signals
+                    checkboxes[id].toggled.connect(partial(
+                        checkbox_state, btn=checkboxes[id], line=lines[id], modif=modif))
+
+                    # check db for "Date Done", if null leave checkbox unchecked,
+                    # else make checkbox checked .setChecked(checked)
+                    if modif[3] == "NULL":
+                        checkboxes[id].setChecked(False)
+                    else:
+                        checkboxes[id].setChecked(True)
+
+                    # checkboxes[id].deleteLater()
+                    # lines[id].deleteLater()
+                    # closebuttons[id].deleteLater()
+
+                    i += 1
+                    row_count += 1
+
+                update_progressbar()
+
+        def save_modif():
+            modif_todo_job_id = str(self.modifJobComboBox.currentText())
+            parent = modif_todo_job_id[0:9]
+
+            # fetch records for select job
+            connection = sqlite3.connect(DB)
+            cursor = connection.cursor()
+            cursor.execute("""
+                    SELECT * FROM debrief
+                    WHERE "Parent" = "{par_id}" """.format(par_id=parent))
+
+            result_all = cursor.fetchall()
+            connection.commit()
+            connection.close()
+
+            for modif in result_all:
+                print modif
+
+        def add_modif_item(parent=None):
+            """Modification dock function for displaying adding boxes.
+
+            Addes a modification row for given parent (selected job)
+
+            Args:
+                parent (str): "Project_Code" from modifComboBox.
+            Returns:
+                None
+            """
+            if parent is None:
+                print 'No parent specified for add_modif_line()'
+            else:
+                import datetime
+
+                now = str(datetime.datetime.now())
+                print('Date now: %s' % now)
+                now = now.replace(":", "-")
+                now = now.replace(" ", "-")
+                now = now.replace(".", "-")
+                print('Date now replaced: %s' % now)
+
+                description = 'Ici se trouve le debrief a appliquer...'
+                date_initialised = now
+                date_completed = NULL
+
+
+                debrief_data = (description, date_initialised, date_completed,
+                                 parent)
+
+                cursor.executemany("""
+                    INSERT INTO debrief ("key","Description", "[Date_Created]", "[Date_Done]",
+                                        "Parent")
+                    VALUES(NULL,?,?,?,?)""", debrief_data)
+                fetch_modif_items(parent)
 
         def clients_sel_changed():
                 data = tabView_sel_changed(tabview=self.clientsTable)
@@ -558,7 +784,9 @@ class MyWindow(QtGui.QMainWindow):
         self.modifClientComboBox.currentIndexChanged.connect(
             fetch_jobs_from_client)
 
-        self.modifJobComboBox.activated.connect(fetch_modif_todo)
+        self.modifJobComboBox.activated.connect(fetch_modif_items)
+        self.btnSaveModifs.clicked.connect(save_modif)
+
         # self.modifJobComboBox.currentIndexChanged.connect(fetch_modif_todo)
 
         # Service proposes TAB, uses the edit class of ui widget
@@ -1013,8 +1241,25 @@ def make_db():
         [Date_Created] TIMESTAMP,
         [Date_Done] TIMESTAMP,
         Parent TEXT,
-        FOREIGN KEY (Parent) REFERENCES job (key)
+        FOREIGN KEY (Parent) REFERENCES job ("Code Job")
         );""")
+    connection.commit()
+    debrief_data = [
+                    ("Rajouter une chaise", "15/10/2016", "15/10/2016",
+                     "J/002/003"),
+                    ("Rajouter des tables", "15/10/2016", "",
+                     "J/002/003"),
+                    ("Rajouter du rooooose", "15/10/2016", "15/10/2016",
+                     "J/002/004"),
+                    ("Rajouter des poupenszzzz", "15/10/2016", "",
+                     "J/002/003"),
+                     ]
+
+    cursor.executemany("""
+        INSERT INTO debrief ("key","Description", [Date_Created], [Date_Done],
+                            "Parent")
+        VALUES(NULL,?,?,?,?)""", debrief_data)
+    connection.commit()
 
     connection.close()
 
@@ -1115,11 +1360,11 @@ def update_combo_from_db(combo, column, table, displayfor=None):
     """
     # UNCOMMENT SECTION FOR DEBUGGING /START/
     # print "\n"
-    print "-" * 80
-    print "START OF FUNCTION update combo client"
+    # print "-" * 80
+    # print "START OF FUNCTION update combo client"
     # UNCOMMENT SECTION FOR DEBUGGING /END/
-    if displayfor is not None:
-        print "displayfor mode active>>", displayfor
+    # if displayfor is not None:
+    #     print "displayfor mode active>>", displayfor
     connection = sqlite3.connect(DB)
     cursor = connection.cursor()
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
@@ -1231,8 +1476,8 @@ def update_combo_from_db(combo, column, table, displayfor=None):
     # print "All items:", allitems
 
     # # UNCOMMENT SECTION FOR DEBUGGING /START/
-    print "END OF FUNCTION update combo client"
-    print "-" * 80
+    # print "END OF FUNCTION update combo client"
+    # print "-" * 80
     # print "\n"
     # # UNCOMMENT SECTION FOR DEBUGGING /END/
 
