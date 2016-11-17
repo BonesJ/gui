@@ -34,16 +34,16 @@ import sys
 import icons_rc
 
 class Node(object):
-    
+
     def __init__(self, name, parent=None):
-        
-        self._name = name        
+
+        self._name = name
         self._flat_price = None
         self._rate_price = None
 
         self._children = []
         self._parent = parent
-        
+
         if parent is not None:
             parent.addChild(self)
 
@@ -55,19 +55,19 @@ class Node(object):
         self._children.append(child)
 
     def insertChild(self, position, child):
-        
+
         if position < 0 or position > len(self._children):
             return False
-        
+
         self._children.insert(position, child)
         child._parent = self
         return True
 
     def removeChild(self, position):
-        
+
         if position < 0 or position > len(self._children):
             return False
-        
+
         child = self._children.pop(position)
         child._parent = None
 
@@ -101,22 +101,22 @@ class Node(object):
 
     def child(self, row):
         return self._children[row]
-    
+
     def childCount(self):
         return len(self._children)
 
     def parent(self):
         return self._parent
-    
+
     def row(self):
         if self._parent is not None:
             return self._parent._children.index(self)
-    
+
     def log_level(self, tabLevel=-1):
 
         output = ""
         tabLevel += 1
-        
+
         for i in range(tabLevel):
             output += "\t"
         # print "before>>", self._name
@@ -126,20 +126,20 @@ class Node(object):
             # print "after>>", self._name
 
         output += str(tabLevel) + self._name + "\n"
-        
+
         for child in self._children:
             output += child.log_level(tabLevel)
-        
+
         tabLevel -= 1
         output += "\n"
-        
+
         return output
 
     def log(self, tabLevel=-1):
 
         output = ""
         tabLevel += 1
-        
+
         for i in range(tabLevel):
             output += "\t"
         # print "before>>", self._name
@@ -149,13 +149,13 @@ class Node(object):
             # print "after>>", self._name
 
         output += "|------" + self._name + "\n"
-        
+
         for child in self._children:
             output += child.log(tabLevel)
-        
+
         tabLevel -= 1
         output += "\n"
-        
+
         return output
     #  uncomment to graphically tab separet different levels, need numbers to work
     # def __repr__(self):
@@ -166,34 +166,34 @@ class Node(object):
 
 
 class TransformNode(Node):
-    
+
     def __init__(self, name, parent=None):
         super(TransformNode, self).__init__(name, parent)
-        
+
     def typeInfo(self):
         return "TRANSFORM"
 
 
 class CameraNode(Node):
-    
+
     def __init__(self, name, parent=None):
         super(CameraNode, self).__init__(name, parent)
-        
+
     def typeInfo(self):
         return "CAMERA"
 
 
 class LightNode(Node):
-    
+
     def __init__(self, name, parent=None):
         super(LightNode, self).__init__(name, parent)
-        
+
     def typeInfo(self):
         return "LIGHT"
-    
-    
+
+
 class SceneGraphModel(QtCore.QAbstractItemModel):
-    
+
     """INPUTS: Node, QObject"""
     def __init__(self, root, parent=None):
         super(SceneGraphModel, self).__init__(parent)
@@ -212,9 +212,9 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
     """INPUTS: QModelIndex"""
     """OUTPUT: int"""
     def recursiveRowCount(self, parent):
-        
+
         parentNode = self._rootNode
-        
+
         return parentNode.childCount()
 
 
@@ -223,11 +223,11 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
     """OUTPUT: int"""
     def columnCount(self, parent):
         return 3
-    
+
     """INPUTS: QModelIndex, int"""
     """OUTPUT: QVariant, strings are cast to QString which is a QVariant"""
     def data(self, index, role):
-        
+
         if not index.isValid():
             return None
 
@@ -240,17 +240,17 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
                 return node.fprice()
             if index.column() == 2:
                 return node.rprice()
-            
+
         if role == QtCore.Qt.DecorationRole:
             if index.column() == 0:
                 typeInfo = node.typeInfo()
-                
+
                 if typeInfo == "LIGHT":
                     return QtGui.QIcon(QtGui.QPixmap(":/Light.png"))
-                
+
                 if typeInfo == "TRANSFORM":
                     return QtGui.QIcon(QtGui.QPixmap(":/Transform.png"))
-                
+
                 if typeInfo == "CAMERA":
                     return QtGui.QIcon(QtGui.QPixmap(":/Camera.png"))
 
@@ -264,23 +264,23 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
     def setData(self, index, value, role=QtCore.Qt.EditRole):
 
         if index.isValid():
-            
+
             if role == QtCore.Qt.EditRole:
-                
+
                 node = index.internalPointer()
                 if index.column() == 0:
                     node.setName(value)
-                
+
                 if (index.column() == 1) :
                     node.setPrice(value)
-               
+
                 if (index.column() == 2) :
                     node.setPriceR(value)
-                
+
                 return True
         return False
 
-    
+
     """INPUTS: int, Qt::Orientation, int"""
     """OUTPUT: QVariant, strings are cast to QString which is a QVariant"""
     def headerData(self, section, orientation, role):
@@ -292,7 +292,7 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
             elif section == 2:
                 return "Hourly rate"
 
-        
+
     """INPUTS: QModelIndex"""
     """OUTPUT: int (flag)"""
     def flags(self, index):
@@ -303,20 +303,20 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
     """OUTPUT: QModelIndex"""
     """Should return the parent of the node with the given QModelIndex"""
     def parent(self, index):
-        
+
         node = self.getNode(index)
         parentNode = node.parent()
-        
+
         if parentNode == self._rootNode:
             return QtCore.QModelIndex()
-        
+
         return self.createIndex(parentNode.row(), 0, parentNode)
-        
+
     """INPUTS: int, int, QModelIndex"""
     """OUTPUT: QModelIndex"""
     """Should return a QModelIndex that corresponds to the given row, column and parent node"""
     # def index(self, row, column, parent):
-        
+
     #     parentNode = self.getNode(parent)
 
     #     childItem = parentNode.child(row)
@@ -329,7 +329,7 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
 
     def index(self, row, column, parent=QtCore.QModelIndex()):
         if self.hasIndex(row, column, parent):
-            parent_node = self.getNode(parent) 
+            parent_node = self.getNode(parent)
             child_item = parent_node.child(row)
             if child_item:
                 return self.createIndex(row, column, child_item)
@@ -342,7 +342,7 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
     """INPUTS: QModelIndex"""
     def getNode(self, index, root=None):
         if index.isValid():
-            
+
             if (root is not None) and (root == True):
                 print "Fetching root node for output..."
                 return self._rootNode
@@ -350,54 +350,54 @@ class SceneGraphModel(QtCore.QAbstractItemModel):
             node = index.internalPointer()
             if node:
                 return node
-            
+
         return self._rootNode
 
-    
+
     """INPUTS: int, int, QModelIndex"""
     def insertRows(self, position, rows, parent=QtCore.QModelIndex()):
-        
+
         parentNode = self.getNode(parent)
-        
+
         self.beginInsertRows(parent, position, position + rows - 1)
-        
+
         for row in range(rows):
-            
+
             childCount = parentNode.childCount()
             childNode = Node("untitled" + str(childCount))
             success = parentNode.insertChild(position, childNode)
-        
+
         self.endInsertRows()
 
         return success
-    
+
     def insertLights(self, position, rows, parent=QtCore.QModelIndex()):
-        
+
         parentNode = self.getNode(parent)
-        
+
         self.beginInsertRows(parent, position, position + rows - 1)
-        
+
         for row in range(rows):
-            
+
             childCount = parentNode.childCount()
             childNode = LightNode("light" + str(childCount))
             success = parentNode.insertChild(position, childNode)
-        
+
         self.endInsertRows()
 
         return success
 
     """INPUTS: int, int, QModelIndex"""
     def removeRows(self, position, rows, parent=QtCore.QModelIndex()):
-        
+
         parentNode = self.getNode(parent)
         self.beginRemoveRows(parent, position, position + rows - 1)
-        
+
         for row in range(rows):
             success = parentNode.removeChild(position)
-            
+
         self.endRemoveRows()
-        
+
         return success
 
 
@@ -410,9 +410,9 @@ def print_tree():
 
 class Ui_(QtGui.QWidget):
 
-
     def __init__(self, parent=None):
         super(QtGui.QWidget,self).__init__(parent)
+
         def lock_unlock_tree():
             global TRUE_OR_FALSE
             # toggle_switch = cycle(TRUE_OR_FALSE)
@@ -422,7 +422,7 @@ class Ui_(QtGui.QWidget):
             self.pushButton_16.setEnabled(boolean)
             self.pushButton_17.setEnabled(boolean)
             self.pushButton_18.setEnabled(boolean)
-        
+
 
         self.layoutWidget = QtGui.QWidget()
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
@@ -481,7 +481,7 @@ class Ui_(QtGui.QWidget):
         self.productStructView.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.productStructView.setObjectName(_fromUtf8("productStructView"))
         self.productStructView.header().setStretchLastSection(False)
-        self.productStructView.setEditTriggers(self.productStructView.NoEditTriggers)
+        # self.productStructView.setEditTriggers(self.productStructView.NoEditTriggers)
         # self.productStructView.header().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)
         self.productStructView.header().setResizeMode(QtGui.QHeaderView.ResizeToContents)
         self.verticalLayout_25.addWidget(self.productStructView)
@@ -547,6 +547,110 @@ class Ui_(QtGui.QWidget):
         # self.pushButton_18.clicked.connect()
 
 
+class Ui_layoutWidget(QtGui.QWidget):
+
+    def __init__(self, parent=None):
+        super(QtGui.QWidget,self).__init__(parent)
+
+        self.layoutWidget = QtGui.QWidget()
+        self.layoutWidget.setObjectName(_fromUtf8("self.layoutWidget"))
+        self.layoutWidget.setEnabled(True)
+        self.layoutWidget.resize(711, 266)
+        self.horizontalLayout = QtGui.QHBoxLayout(self.layoutWidget)
+        self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
+        self.verticalLayout_25 = QtGui.QVBoxLayout()
+        self.verticalLayout_25.setObjectName(_fromUtf8("verticalLayout_25"))
+
+        # self.productStructView = QtGui.QTreeView(self.layoutWidget)
+        # sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        # sizePolicy.setHorizontalStretch(0)
+        # sizePolicy.setVerticalStretch(0)
+        # sizePolicy.setHeightForWidth(self.productStructView.sizePolicy().hasHeightForWidth())
+        # self.productStructView.setSizePolicy(sizePolicy)
+        # self.productStructView.setSizeIncrement(QtCore.QSize(0, 1))
+        # self.productStructView.setAlternatingRowColors(False)
+        # self.productStructView.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        # self.productStructView.setSelectionBehavior(QtGui.QAbstractItemView.SelectItems)
+        # self.productStructView.setIndentation(20)
+        # self.productStructView.setRootIsDecorated(False)
+        # self.productStructView.setAnimated(False)
+        # self.productStructView.setObjectName(_fromUtf8("productStructView"))
+        # self.productStructView.header().setHighlightSections(False)
+        self.productStructView = QtGui.QTreeView(self.layoutWidget)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.productStructView.sizePolicy().hasHeightForWidth())
+        self.productStructView.setSizePolicy(sizePolicy)
+        self.productStructView.setSizeIncrement(QtCore.QSize(0, 1))
+        self.productStructView.setAlternatingRowColors(False)
+        # self.productStructView.setSelectionBehavior(QtGui.QAbstractItemView.SelectItems)
+        self.productStructView.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.productStructView.setObjectName(_fromUtf8("productStructView"))
+        self.productStructView.header().setStretchLastSection(False)
+
+        self.verticalLayout_25.addWidget(self.productStructView)
+        self.horizontalLayout.addLayout(self.verticalLayout_25)
+        self.verticalLayout_8 = QtGui.QVBoxLayout()
+        self.verticalLayout_8.setObjectName(_fromUtf8("verticalLayout_8"))
+        self.label = QtGui.QLabel(self.layoutWidget)
+        self.label.setWordWrap(True)
+        self.label.setObjectName(_fromUtf8("label"))
+        self.verticalLayout_8.addWidget(self.label)
+        self.radioButton_7 = QtGui.QRadioButton(self.layoutWidget)
+        self.radioButton_7.setObjectName(_fromUtf8("radioButton_7"))
+        self.verticalLayout_8.addWidget(self.radioButton_7)
+        self.radioButton_8 = QtGui.QRadioButton(self.layoutWidget)
+        self.radioButton_8.setObjectName(_fromUtf8("radioButton_8"))
+        self.verticalLayout_8.addWidget(self.radioButton_8)
+        self.checkBox = QtGui.QCheckBox(self.layoutWidget)
+        self.checkBox.setObjectName(_fromUtf8("checkBox"))
+        self.verticalLayout_8.addWidget(self.checkBox)
+        self.horizontalLayout_29 = QtGui.QHBoxLayout()
+        self.horizontalLayout_29.setObjectName(_fromUtf8("horizontalLayout_29"))
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_29.addItem(spacerItem)
+        self.doubleSpinBox_8 = QtGui.QDoubleSpinBox(self.layoutWidget)
+        self.doubleSpinBox_8.setAccelerated(False)
+        self.doubleSpinBox_8.setPrefix(_fromUtf8(""))
+        self.doubleSpinBox_8.setMaximum(999999999.99)
+        self.doubleSpinBox_8.setSingleStep(1.0)
+        self.doubleSpinBox_8.setObjectName(_fromUtf8("doubleSpinBox_8"))
+        self.horizontalLayout_29.addWidget(self.doubleSpinBox_8)
+        self.verticalLayout_8.addLayout(self.horizontalLayout_29)
+        spacerItem1 = QtGui.QSpacerItem(88, 5, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self.verticalLayout_8.addItem(spacerItem1)
+        self.label_2 = QtGui.QLabel(self.layoutWidget)
+        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.verticalLayout_8.addWidget(self.label_2)
+        self.label_3 = QtGui.QLabel(self.layoutWidget)
+        self.label_3.setObjectName(_fromUtf8("label_3"))
+        self.verticalLayout_8.addWidget(self.label_3)
+        self.label_5 = QtGui.QLabel(self.layoutWidget)
+        self.label_5.setObjectName(_fromUtf8("label_5"))
+        self.verticalLayout_8.addWidget(self.label_5)
+        self.label_4 = QtGui.QLabel(self.layoutWidget)
+        self.label_4.setObjectName(_fromUtf8("label_4"))
+        self.verticalLayout_8.addWidget(self.label_4)
+        spacerItem2 = QtGui.QSpacerItem(88, 0, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.MinimumExpanding)
+        self.verticalLayout_8.addItem(spacerItem2)
+        self.pushButton = QtGui.QPushButton(self.layoutWidget)
+        self.pushButton.setObjectName(_fromUtf8("pushButton"))
+        self.verticalLayout_8.addWidget(self.pushButton)
+        self.horizontalLayout.addLayout(self.verticalLayout_8)
+        self.layoutWidget.setWindowTitle(_translate("layoutWidget", "Form", None))
+        self.label.setText(_translate("layoutWidget", "Selectionner méthode de facturation (a la tâche ou de l\'heure):", None))
+        self.radioButton_7.setText(_translate("layoutWidget", "Prix Unitaire (DA/unité)", None))
+        self.radioButton_8.setText(_translate("layoutWidget", "Prix Horaire (DA/h)", None))
+        self.checkBox.setText(_translate("layoutWidget", "Marge Supplémentaire or Réduction", None))
+        self.doubleSpinBox_8.setSuffix(_translate("layoutWidget", "%", None))
+        self.label_2.setText(_translate("layoutWidget", "Article:", None))
+        self.label_3.setText(_translate("layoutWidget", "PRODUIT OU SERVICE", None))
+        self.label_5.setText(_translate("layoutWidget", "Prix à afficher:", None))
+        self.label_4.setText(_translate("layoutWidget", "PRODUIT OU SERVICE", None))
+        self.pushButton.setText(_translate("layoutWidget", "Valider", None))
+        QtCore.QMetaObject.connectSlotsByName(self.layoutWidget)
+        self.setLayout(self.horizontalLayout)
 
         # connection = sqlite3.connect(DB)
         # cursor = connection.cursor()

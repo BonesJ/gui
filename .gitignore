@@ -33,3 +33,11 @@ resources/compile_Icons.bat
 treeviewmodel.py
 treeviewmodel.pyc
 tree-tuto.py
+Alpha.txt
+gdrive.py
+storage.json
+closure_table_test.py
+file_list_timestamped.json
+my_database.db
+resources/closure/
+testdbclosure.db
