@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1003</width>
+    <width>1123</width>
     <height>518</height>
    </rect>
   </property>
@@ -290,7 +290,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>739</width>
+             <width>798</width>
              <height>806</height>
             </rect>
            </property>
@@ -1085,7 +1085,7 @@ QTabBar::tab:only-one {
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>732</width>
+                 <width>791</width>
                  <height>320</height>
                 </rect>
                </property>
@@ -2101,7 +2101,7 @@ QPushButton:hover {
 }</string>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="tab_11">
            <attribute name="title">
@@ -2615,7 +2615,7 @@ QPushButton:!enabled {
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>692</width>
+                 <width>791</width>
                  <height>320</height>
                 </rect>
                </property>
@@ -2825,8 +2825,8 @@ QPushButton:hover {
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>808</width>
-                 <height>201</height>
+                 <width>791</width>
+                 <height>320</height>
                 </rect>
                </property>
                <layout class="QGridLayout" name="gridLayout_12">
@@ -2879,13 +2879,6 @@ QPushButton:hover {
                              </property>
                              <property name="checked">
                               <bool>true</bool>
-                             </property>
-                            </widget>
-                           </item>
-                           <item>
-                            <widget class="QRadioButton" name="radioButtonBJobs">
-                             <property name="text">
-                              <string>Projets</string>
                              </property>
                             </widget>
                            </item>
@@ -4191,7 +4184,7 @@ background-color: rgba(227, 238, 238,0);
    </property>
    <property name="minimumSize">
     <size>
-     <width>240</width>
+     <width>260</width>
      <height>236</height>
     </size>
    </property>
@@ -4367,7 +4360,7 @@ background-color: rgba(227, 238, 238,0);
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1003</width>
+     <width>1123</width>
      <height>21</height>
     </rect>
    </property>

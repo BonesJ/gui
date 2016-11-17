@@ -27,7 +27,6 @@ MODIF_LINE_COUNT = {"001": 5, "002": 3}
 #  max line 2423
 
 
-
 class MyWindow(QtGui.QMainWindow):
     """Main class in which the app runs.
 
@@ -43,12 +42,11 @@ class MyWindow(QtGui.QMainWindow):
 
         At present time we take in 3 models used for the tableviews
         """
-
-        # ,QtCore.Qt.FramelessWindowHint
-        super(MyWindow, self).__init__(parent,QtCore.Qt.FramelessWindowHint|QtCore.Qt.WindowMinimizeButtonHint|QtCore.Qt.WindowMaximizeButtonHint)
+        super(MyWindow, self).__init__(parent, QtCore.Qt.FramelessWindowHint |
+            QtCore.Qt.WindowMinimizeButtonHint |
+            QtCore.Qt.WindowMaximizeButtonHint)
         # self.setupUi(self)
     # ===========================================================FUNCTIONS DEFS
-        # self.setMask(boundingRect())
 
         def del_selected_jobs():
             """WF for jobs data using function `del_selected()`."""
@@ -392,38 +390,6 @@ class MyWindow(QtGui.QMainWindow):
             }
             """)
 
-        def fetch_modif_todo():
-            # clear layout of previous widgets
-            items = [(self.gridLayout_4.itemAt(i) for i in range(self.gridLayout_4.count()))]
-            print "items ", items
-            for w in items:
-                print "removing widget '", w, "' from layout"
-                self.gridLayout_4.removeWidget(w)
-
-            # lookup debrief table and select chosen job to display modif
-            print
-            print "Fetching modifs for job: "
-            modif_todo_job_id = str(self.modifJobComboBox.currentText())
-            print modif_todo_job_id
-
-            i = 4
-            closebuttons = {}
-            lines = {}
-            checkboxes = {}
-
-            for modif in range(MODIF_LINE_COUNT["001"]):
-                print modif
-                checkboxes[modif] = QtGui.QCheckBox()
-                # checkboxes[modif].toggled.connect(strikeout)
-                lines[modif] = QtGui.QLineEdit()
-                closebuttons[modif] = QtGui.QPushButton('X')
-                style_modif_close_btn(closebuttons[modif])
-
-                self.gridLayout_4.addWidget(checkboxes[modif], i, 0, 1, 1)
-                self.gridLayout_4.addWidget(lines[modif], i, 1, 1, 2)
-                self.gridLayout_4.addWidget(closebuttons[modif], i, 3, 1, 1)
-                i +=1
-
         def add_modif_line():
             # insert row of checkbox, lineedit, and 'x' close
             # insert row into debrief table with timestamp and ischecked? status
@@ -457,6 +423,48 @@ class MyWindow(QtGui.QMainWindow):
             #   check status of modif
             # Update records
 
+        def del_modif(num=None,btn=None, line=None, close=None, modif=None):
+            """Modification dock function to delete rows.
+
+            Deletes a row of a given modification for a given
+            job (or Projet). Clears databse table 'debrief' of rows.
+
+            Args:
+                btn  (QCheckBox):  Delets widget.
+                line (QLineEdit):  Delets widget.
+                modif (tup ):      Read information (id and contents)
+            Returns:
+                True
+            """
+            #  Warning dialog
+            msg = QtGui.QMessageBox()
+            msg.setIcon(QtGui.QMessageBox.Warning)
+            msg.setText("Etes vous sur de vouloir supprimer cette modification ? Celle-ci sera definitivement efface de la memoire. Appuiyer sur 'Ok' pour continuer ou sur 'Cancel' pour annuler.")
+            # msg.setInformativeText("To edit a client you must select a row.")
+            msg.setWindowTitle("Delete")
+            msg.setStandardButtons(QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
+            set_style(msg)
+            result = msg.exec_()
+
+            if result == QtGui.QMessageBox.Ok:
+                # Remove widget
+                widgets = [num, btn, line, close]
+                for widget in widgets:
+                    print "Removed", widget
+                    self.gridLayout_21.removeWidget(widget)
+                    widget.deleteLater()
+                    widget = None
+
+                # Remove recod from db
+                connection = sqlite3.connect(DB)
+                cursor = connection.cursor()
+                cursor.execute("""
+                        DELETE FROM debrief
+                        WHERE "key" = "{id}" """.format(id=modif[0]))
+
+                result_all = cursor.fetchall()
+                connection.commit()
+                connection.close()
 
         def fetch_modif_items(parent=None):
             """Modification dock function for displaying edit boxes.
@@ -503,6 +511,7 @@ class MyWindow(QtGui.QMainWindow):
                     btn  (QCheckBox):  Reads state of check box.
                     line (QLineEdit):  Sets text style as strikeout and
                                        disables editing
+                    modif (tup ):      Read information (id and contents)
                 Returns:
                     True
                 """
@@ -641,8 +650,13 @@ class MyWindow(QtGui.QMainWindow):
                     closebuttons[id].setSizePolicy(sizePolicy)
 
                     # connect checkbox signals
-                    checkboxes[id].toggled.connect(partial(
-                        checkbox_state, btn=checkboxes[id], line=lines[id], modif=modif))
+                    checkboxes[id].toggled.connect(partial(checkbox_state,
+                        btn=checkboxes[id], line=lines[id], modif=modif))
+
+                    closebuttons[id].clicked.connect(partial(del_modif,
+                        num=numbering,btn=checkboxes[id], line=lines[id],
+                        close=closebuttons[id], modif=modif))
+
 
                     # check db for "Date Done", if null leave checkbox unchecked,
                     # else make checkbox checked .setChecked(checked)
@@ -678,7 +692,7 @@ class MyWindow(QtGui.QMainWindow):
             for modif in result_all:
                 print modif
 
-        def add_modif_item(parent=None):
+        def add_modif_item():
             """Modification dock function for displaying adding boxes.
 
             Addes a modification row for given parent (selected job)
@@ -688,6 +702,9 @@ class MyWindow(QtGui.QMainWindow):
             Returns:
                 None
             """
+            modif_todo_job_id = str(self.modifJobComboBox.currentText())
+            parent = modif_todo_job_id[0:9]
+            print parent
             if parent is None:
                 print 'No parent specified for add_modif_line()'
             else:
@@ -695,23 +712,26 @@ class MyWindow(QtGui.QMainWindow):
 
                 now = str(datetime.datetime.now())
                 print('Date now: %s' % now)
-                now = now.replace(":", "-")
-                now = now.replace(" ", "-")
-                now = now.replace(".", "-")
-                print('Date now replaced: %s' % now)
+                # now = now.replace(":", "-")
+                # now = now.replace(" ", "-")
+                # now = now.replace(".", "-")
+                # print('Date now replaced: %s' % now)
 
-                description = 'Ici se trouve le debrief a appliquer...'
+                description = 'Entrez votre debrief'
                 date_initialised = now
-                date_completed = NULL
+                date_completed = 'NULL'
 
-
-                debrief_data = (description, date_initialised, date_completed,
-                                 parent)
-
+                debrief_data = [(description, date_initialised, date_completed,
+                        parent)]
+                connection = sqlite3.connect(DB)
+                cursor = connection.cursor()
                 cursor.executemany("""
-                    INSERT INTO debrief ("key","Description", "[Date_Created]", "[Date_Done]",
-                                        "Parent")
+                    INSERT INTO debrief ("key","Description", "Date_Created",
+                                               "Date_Done", "Parent")
                     VALUES(NULL,?,?,?,?)""", debrief_data)
+                connection.commit()
+                connection.close()
+
                 fetch_modif_items(parent)
 
         def clients_sel_changed():
@@ -759,7 +779,11 @@ class MyWindow(QtGui.QMainWindow):
         label_copyright = QtGui.QLabel('Copyright P2 Labs. Algeria 2016')
 
         label_copyright.setStyleSheet(
-                                    "QLabel { background-color: rgba(255, 255, 255, 0); border-style: inset; border-width: 1px; border-radius: 10px; border-color: beige; font: bold 8px;}")
+            "QLabel { "
+            "background-color: rgba(255, 255, 255, 0);"
+            "border-style: inset; border-width: 1px; "
+            "border-radius: 10px; border-color: beige; "
+            "font: bold 8px;}")
         self.statusBar.addPermanentWidget(label_copyright)
 
         # close dock widget by default
@@ -786,6 +810,7 @@ class MyWindow(QtGui.QMainWindow):
 
         self.modifJobComboBox.activated.connect(fetch_modif_items)
         self.btnSaveModifs.clicked.connect(save_modif)
+        self.btnAddModif.clicked.connect(add_modif_item)
 
         # self.modifJobComboBox.currentIndexChanged.connect(fetch_modif_todo)
 
@@ -872,16 +897,16 @@ class MyWindow(QtGui.QMainWindow):
                                               combo=self.comboBoxBills,
                                               group="bills")
 
-        BJobs = partial(job_bill_btnstate, b=self.radioButtonBJobs,
-                                           combo=self.comboBoxBills,
-                                           group="bills")
+        # BJobs = partial(job_bill_btnstate, b=self.radioButtonBJobs,
+        #                                    combo=self.comboBoxBills,
+        #                                    group="bills")
 
         BAll = partial(job_bill_btnstate, b=self.radioButtonBAll,
                                           combo=self.comboBoxBills,
                                           group="bills")
 
         self.radioButtonBClients.toggled.connect(BClients)  # Args too long...
-        self.radioButtonBJobs.toggled.connect(BJobs)
+        # self.radioButtonBJobs.toggled.connect(BJobs)
         self.radioButtonBAll.toggled.connect(BAll)
 
         # View selection ComboBox
